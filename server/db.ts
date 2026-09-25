@@ -73,8 +73,11 @@ export async function currentMember(): Promise<Member | null> {
       .split(",")
       .map((s) => s.trim().toLowerCase())
       .filter(Boolean);
-    const role = admins.includes(identity.userId) || adminEmails.includes(identity.email.toLowerCase())
-      ? "admin" : "member";
+    const role =
+      admins.includes(identity.userId) ||
+      adminEmails.includes(identity.email.toLowerCase())
+        ? "admin"
+        : "member";
     const suffix = (await sha256(identity.userId)).slice(0, 12);
     await run(
       "INSERT OR IGNORE INTO users (id,username,display_name,email,role,created_at) VALUES (?,?,?,?,?,?)",

@@ -4,9 +4,10 @@ import StaffPanel from "./staff-panel";
 import RichText from "./rich-text";
 import VideoEmbed from "./video-embed";
 import { useForumTools } from "@/lib/use-forum-tools";
+import { threadComments } from "@/lib/comment-threads";
 import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
 import { AccountControls, ContactPanel } from "./member-panels";
-import { REPORT_REASONS, isRestricted } from "@/lib/forum-validation";
+import { REPORT_REASONS, isRestricted, validId } from "@/lib/forum-validation";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -208,8 +209,10 @@ export default function Forum({
   useEffect(() => {
     const params = new URLSearchParams(location.search),
       id = params.get("post"),
+      member = params.get("member"),
       policy = params.get("page");
     if (id) void openPost(id);
+    else if (member) void showProfile(member);
     else if (policy && (POLICIES[policy] || policy === "contact"))
       setModal(policy);
   }, []);
@@ -287,6 +290,7 @@ export default function Forum({
   }
   async function openPost(id: string) {
     try {
+      id = validId(id);
       const r = await api("posts/" + id);
       setDetail(r.post);
       setComments(r.comments);
@@ -300,14 +304,24 @@ export default function Forum({
       }
       history.replaceState(null, "", "?post=" + encodeURIComponent(id));
       if (user) void action("read", { post_id: id });
+      return true;
     } catch (e) {
       toast.error((e as Error).message);
+      return false;
     }
   }
   async function showProfile(name: string) {
     try {
-      setProfile((await api("profile/" + encodeURIComponent(name))).profile);
+      setProfile(
+        (await api("profile/" + encodeURIComponent(name.toLowerCase())))
+          .profile,
+      );
       setModal("member");
+      history.replaceState(
+        null,
+        "",
+        "?member=" + encodeURIComponent(name.toLowerCase()),
+      );
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -466,7 +480,7 @@ export default function Forum({
       }));
     },
     open: async (id) => {
-      await openPost(id);
+      if (!(await openPost(id))) throw new Error("Discussion unavailable.");
       return { opened: id };
     },
     draft: async (t, b, c) => {
@@ -1220,6 +1234,29 @@ export default function Forum({
               </div>
               <div className="form-footer">
                 <small>Draft saved on this device.</small>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  disabled={uploading || saving}
+                  onClick={() => {
+                    const key = "forum-draft:" + user?.id;
+                    const previous = localStorage.getItem(key);
+                    localStorage.removeItem(key);
+                    setModal("");
+                    setAttachments([]);
+                    toast.success("Draft discarded.", {
+                      action: {
+                        label: "Undo",
+                        onClick: () => {
+                          if (previous) localStorage.setItem(key, previous);
+                          compose();
+                        },
+                      },
+                    });
+                  }}
+                >
+                  Discard draft
+                </Button>
                 <Button disabled={saving || uploading}>
                   {saving ? "Publishing…" : "Publish post"}
                 </Button>
@@ -1438,17 +1475,25 @@ export default function Forum({
                     </Button>
                   </form>
                 )}
-                {comments.map((c) => (
+                {threadComments(comments).map(({ comment: c, depth }) => (
                   <div
                     key={c.id}
                     id={"comment-" + c.id}
                     className={"comment " + (c.parent_id ? "reply" : "")}
+                    style={{ marginLeft: Math.min(depth, 3) * 16 }}
                   >
                     <div className="post-meta">
                       <button onClick={() => showProfile(c.username)}>
                         <strong>u/{c.username}</strong>
                       </button>
                       <span>· {ago(c.created_at)} ago</span>
+                      {c.parent_id && (
+                        <a href={"#comment-" + c.parent_id}>
+                          Reply to u/
+                          {comments.find((parent) => parent.id === c.parent_id)
+                            ?.username || "member"}
+                        </a>
+                      )}
                     </div>
                     <RichText
                       text={

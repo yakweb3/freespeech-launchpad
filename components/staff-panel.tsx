@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import type { Bootstrap } from "@/lib/forum-types";
+import MediaBackups from "./media-backups";
 type Request = (path: string, data?: unknown) => Promise<any>;
 export default function StaffPanel({
   boot,
@@ -569,6 +570,7 @@ export default function StaffPanel({
                 Backups contain private account data. Store securely. Media
                 files and the staff encryption key require separate backups.
               </p>
+              <MediaBackups api={api} />
               <h3>Community controls</h3>
               <p className="storage-meter">
                 Stored media: {(dashboard.storage.bytes / 1048576).toFixed(1)}{" "}

@@ -784,7 +784,7 @@ textarea {
     height: 64px;
     padding: 0 14px;
     gap: 12px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
   .brand {
     width: auto;
@@ -924,6 +924,27 @@ textarea {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 380px) {
+  .topbar {
+    gap: 6px;
+    padding: 0 10px;
+  }
+  .brand {
+    gap: 4px;
+  }
+  .brand > a {
+    font-size: 17px;
+    gap: 4px;
+  }
+  .brand img {
+    width: 24px;
+    height: 24px;
+  }
+  .header-actions {
+    gap: 6px;
+    flex-shrink: 0;
   }
 }
 .attachment-previews {

@@ -1,4 +1,9 @@
 import { health, backup, maintenance } from "@/server/operations";
+import {
+  listMediaBackups,
+  downloadMediaBackup,
+  restoreMediaBackup,
+} from "@/server/media-backup";
 import { exportAccount } from "@/server/account";
 import {
   staffVerified,
@@ -46,6 +51,10 @@ export async function GET(request: Request) {
       });
     if (path[0] === "health") return response(await health());
     if (path[0] === "backup") return response(await backup(request, user));
+    if (path[0] === "backup-media")
+      return path[1]
+        ? await downloadMediaBackup(request, user, path[1])
+        : response(await listMediaBackups(request, user));
     if (path[0] === "export-account")
       return response(await exportAccount(user));
     if (path[0] === "staff")
@@ -107,6 +116,14 @@ export async function POST(request: Request) {
     const user = await currentMember(),
       action = new URL(request.url).pathname.replace("/api/forum/", "");
     if (action === "upload") return response(await uploadMedia(request, user));
+    if (action.startsWith("restore-media/"))
+      return response(
+        await restoreMediaBackup(
+          request,
+          user,
+          action.slice("restore-media/".length),
+        ),
+      );
     const data = await jsonBody(request);
     if (action === "staff-verify") {
       const result = await verifyStaff(request, user, data);

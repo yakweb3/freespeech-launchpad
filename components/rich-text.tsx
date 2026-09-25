@@ -27,9 +27,13 @@ function inline(text: string): ReactNode[] {
       }
       if (/^@[a-z]/i.test(part))
         return (
-          <span key={i} className="mention">
+          <a
+            key={i}
+            className="mention"
+            href={"/?member=" + encodeURIComponent(part.slice(1).toLowerCase())}
+          >
             {part}
-          </span>
+          </a>
         );
       return part;
     });

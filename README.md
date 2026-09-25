@@ -4,6 +4,8 @@ A working Modern Orange forum built with React/Vinext, a Cloudflare Worker, D1 a
 
 ## Start locally
 
+Private site: https://freespeech-orange-forum.allenramirez.chatgpt.site. Access remains owner-only. Sign in, choose a pseudonym, then open Account → Staff tools to enroll your own authenticator.
+
 Install from the existing lockfile, copy `.env.example` to an ignored `.env`, configure the local administrator and staff encryption key, apply the committed migrations once, then run:
 
 ```
@@ -18,9 +20,12 @@ The workspace already has dependencies, local migrations and a configured local-
 node node_modules/typescript/bin/tsc --noEmit
 node tests/media-validation.mjs
 node scripts/run-framework.mjs build
+node tests/run-isolated.mjs
 ```
 
-The integration scripts under `tests/` operate on the local development database and enforce the real application rate limits. `local-api.mjs` sets up the local test profile. `staff-security.mjs` enrolls that profile in a test authenticator, saved only in ignored local state. `extended-api.mjs` exercises support, exports and staff actions. `final-local-check.mjs` records a one-time browser-created picture/video fixture verification; create matching local fixtures before rerunning that script. These are development checks, not production traffic or a scheduled test suite.
+The preferred repeatable integration check is `tests/run-isolated.mjs`: it starts the compiled Worker on loopback port 5174 with a new isolated database/bucket and explicit test identities, exercises multi-member workflows and media recovery, then stops its process tree. Do not run it concurrently with a build on Windows. It never uses the hosted database.
+
+The older integration scripts operate on the local development database and enforce real rate limits. `local-api.mjs` sets up the local test profile. `staff-security.mjs` enrolls that profile in a test authenticator, saved only in ignored local state. `extended-api.mjs` exercises support, exports and staff actions. `final-local-check.mjs` records a one-time browser-created picture/video fixture verification; create matching local fixtures before rerunning it. These are development checks, not production traffic or a scheduled test suite.
 
 See [IMPLEMENTATION.md](IMPLEMENTATION.md) for requirement-level evidence and unfinished launch work. See [OPERATIONS.md](OPERATIONS.md) for environment setup, security, backups, recovery, maintenance and deployment. [LAUNCH-CHECKLIST.md](LAUNCH-CHECKLIST.md) separates implementation checks from owner decisions.
 

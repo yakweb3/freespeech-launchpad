@@ -62,6 +62,12 @@ No external scheduler, independent uptime monitor, billing alerts, or independen
 
 A verified administrator can download a database JSON backup. It contains private account information and encrypted authenticator secrets; restrict access and encrypt the backup at rest. Back up R2 objects separately and retain the object keys. Store the staff encryption key separately. Session tokens, rate limits, and the mail queue are excluded to prevent restoration of active sessions or duplicate mail.
 
+Staff tools → Admin → Browse media backups lists uploaded files in pages of 50 and provides individual downloads, including draft attachments. Keep these files with the matching database backup; the filename is the media ID, and the database retains the object key. Downloads require administrator two-factor verification and are audited. Static starter media is already included in the source/build. Freeze posting/uploads during a consistent backup/recovery window and avoid concurrent member deletion or staff actions; this is not an automatic atomic database-and-bucket snapshot service.
+
+To restore a missing uploaded file after database recovery, keep posting and uploads paused and select the original file next to its media record. Recovery validates size, format, dimensions and duration, refuses to overwrite an existing object, and records an audit event. These metadata checks do not establish cryptographic identity; use trusted backups and verify file checksums in your backup system. A controlled isolated drill removed an image from R2 and restored it through this API, verifying exact byte equality. Deleted media cannot be restored through this interface.
+
+The generated production staff encryption key has an ignored local recovery copy in `.sites-runtime/production-security.json`. Move that recovery copy into an owner-controlled encrypted vault before public operation. Do not commit or distribute it with source or ordinary database backups.
+
 Database recovery drill:
 
 ```
@@ -73,6 +79,8 @@ The script refuses to overwrite any existing file, requires a complete table set
 At public launch, establish retention and deletion schedules appropriate to the operator's policies. Current staff audit records, reports, tickets and retained discussion text have no automatic retention deadline. Final policy review must address that explicitly.
 
 ## Deployment and rollback
+
+Owner-private URL: https://freespeech-orange-forum.allenramirez.chatgpt.site. The initial deployment `appgdep_6ab671f578e08191a976108647088e63` succeeded for saved version `appgprj_6ab65c912b888191bdc404afa8ecef0a~appgver_1f0af66f1cc88191b88159a6ae1dd925`. This is the initial rollback reference, not a claim that it includes later refinements. Confirm the latest deployment status after each publication.
 
 Preserve `.openai/hosting.json` project ID and its audience. Push the exact source state, build/package that commit, save a version, and deploy it privately through Sites. A successful build is not evidence of a successful deployment. Retain the authoritative deployment status and URL.
 
