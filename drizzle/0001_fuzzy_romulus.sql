@@ -1,0 +1,1 @@
+ALTER TABLE `outbox` ADD `locked_until` integer;
