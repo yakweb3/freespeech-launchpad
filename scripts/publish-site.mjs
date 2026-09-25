@@ -1,4 +1,4 @@
-import {readFileSync,existsSync,mkdirSync} from 'node:fs';
+import {readFileSync,existsSync,mkdirSync,cpSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {resolve} from 'node:path';
 const root=process.cwd();
@@ -46,9 +46,10 @@ process.stdout.write(build.output.replaceAll(secret,'[redacted]'));
 run('git',['diff','--quiet','HEAD']);
 mkdirSync('.sites-runtime',{recursive:true});
 const archive=resolve('.sites-runtime/forum-deployment.tar.gz');
-run('tar',['-czf',archive,'-C','dist','.']);
+const stage=resolve('.sites-runtime/package-'+sha);mkdirSync(stage,{recursive:true});cpSync('dist',resolve(stage,'dist'),{recursive:true});cpSync('dist/.openai',resolve(stage,'.openai'),{recursive:true});
+run('tar',['-czf',archive,'-C',stage,'.']);
 const files=run('tar',['-tzf',archive]).stdout;
-if(!files.includes('./.openai/hosting.json')||!files.includes('./server/index.js')||!files.includes('./client/'))throw new Error('The deployment archive is incomplete.');
+if(!files.includes('./.openai/hosting.json')||!files.includes('./dist/server/index.js')||!files.includes('./dist/client/'))throw new Error('The deployment archive is incomplete.');
 run('git',['push','sites','HEAD:refs/heads/'+credential.branch],{auth:true});
 const remoteSha=run('git',['ls-remote','--heads','sites','refs/heads/'+credential.branch],{auth:true}).stdout.split(/\s/)[0];if(remoteSha!==sha)throw new Error('Remote source verification failed.');
 credential.token='';environment.GIT_CONFIG_VALUE_0='';
