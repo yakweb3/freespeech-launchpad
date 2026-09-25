@@ -29,10 +29,51 @@ export async function preparePicture(file: File): Promise<Blob> {
     bitmap.close();
   }
 }
-export function uploadFile(
+export async function uploadFile(
   file: Blob,
   onProgress: (n: number) => void,
 ): Promise<Media> {
+  if (file.size > 3 * 1048576) {
+    const api = async (path: string, data: unknown) => {
+      const response = await fetch("/api/forum/" + path, {
+        method: "POST",
+        headers: { "x-forum-request": "1", "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const result = (await response.json()) as {
+        id: string;
+        uploadUrl: string;
+        media: Media;
+        error?: string;
+      };
+      if (!response.ok) throw new Error(result.error || "Upload failed.");
+      return result;
+    };
+    const reservation = await api("upload-begin", {
+      mime: file.type,
+      bytes: file.size,
+    });
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("PUT", reservation.uploadUrl);
+      xhr.setRequestHeader("Content-Type", file.type);
+      xhr.timeout = 180000;
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable)
+          onProgress(Math.round((e.loaded / e.total) * 90));
+      };
+      xhr.onload = () =>
+        xhr.status >= 200 && xhr.status < 300
+          ? resolve()
+          : reject(new Error("Storage upload failed. Please try again."));
+      xhr.onerror = () => reject(new Error("Connection lost during upload."));
+      xhr.ontimeout = () => reject(new Error("Upload timed out."));
+      xhr.send(file);
+    });
+    const result = await api("upload-finish", { id: reservation.id });
+    onProgress(100);
+    return result.media;
+  }
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/forum/upload");

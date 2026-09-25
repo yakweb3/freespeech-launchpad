@@ -46,7 +46,7 @@ export async function moderate(
     type = String(data.target_type || "");
   const logId = crypto.randomUUID(),
     now = Date.now();
-  const work: D1PreparedStatement[] = [];
+  const work: ReturnType<typeof statement>[] = [];
   let recipient: string | null = null,
     href = "/?page=moderation";
   let details: Record<string, unknown> = {};

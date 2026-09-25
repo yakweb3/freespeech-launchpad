@@ -1,5 +1,7 @@
 # FreeSpeech operations
 
+**Vercel branch:** [VERCEL-MIGRATION.md](VERCEL-MIGRATION.md) supersedes the platform, identity, storage and deployment instructions below. These original Sites instructions must not be used to publish this migrated checkout.
+
 ## Runtime and identity
 
 The application uses the Site's managed D1 database (`DB`), R2 bucket (`BUCKET`), and platform-owned ChatGPT sign-in. Anonymous application reads are supported, but the Site remains owner-private until the owner chooses its audience. Independent email/password registration, email verification, and password recovery are not implemented; ChatGPT handles sign-in recovery.

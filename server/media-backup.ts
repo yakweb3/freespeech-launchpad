@@ -1,14 +1,15 @@
 import type { Member } from "@/lib/forum-types";
 import { ForumError, validId, positiveInt } from "@/lib/forum-validation";
 import { inspectMedia, readBounded } from "@/lib/media-inspection";
-import { all, one, bucket, settings, audit, limit } from "./db";
+import { all, one, run, bucket, settings, audit, limit } from "./db";
+import { issueSignedToken, presignUrl } from "@vercel/blob";
 import { verifiedStaff } from "./staff-auth";
 
 async function record(id: string) {
   const row = await one("SELECT * FROM media WHERE id=?", validId(id));
   if (
     !row ||
-    ["deleted", "uploading"].includes(row.status) ||
+    ["deleted", "uploading", "finalizing"].includes(row.status) ||
     !row.bytes ||
     row.object_key.startsWith("asset:")
   )
@@ -26,7 +27,7 @@ export async function listMediaBackups(request: Request, user: Member | null) {
     10000000,
   );
   const rows = await all(
-    "SELECT id,mime,bytes,status,created_at FROM media WHERE status NOT IN ('deleted','uploading') AND bytes>0 AND object_key NOT LIKE 'asset:%' ORDER BY created_at,id LIMIT 51 OFFSET ?",
+    "SELECT id,mime,bytes,status,created_at FROM media WHERE status NOT IN ('deleted','uploading','finalizing') AND bytes>0 AND object_key NOT LIKE 'asset:%' ORDER BY created_at,id LIMIT 51 OFFSET ?",
     offset,
   );
   return {
@@ -128,4 +129,80 @@ export async function restoreMediaBackup(
     "Administrator restored a missing media file from backup.",
   );
   return { ok: true };
+}
+
+export async function beginMediaRecovery(
+  request: Request,
+  user: Member | null,
+  data: Record<string, any>,
+) {
+  const u = await verifiedStaff(request, user, true),
+    row = await record(data.id),
+    s = await settings();
+  if (s.posting_open !== "0" || s.uploads_open !== "0")
+    throw new ForumError(409, "Pause posting and uploads before recovery.");
+  await limit(u.id, "recovery-stage", 10, 3600000);
+  if (await bucket().head(row.object_key))
+    throw new ForumError(
+      409,
+      "This file already exists. Recovery never overwrites stored files.",
+    );
+  const id = crypto.randomUUID(),
+    key = "recovery/" + u.id + "/" + id;
+  await run(
+    "INSERT INTO media (id,owner_id,object_key,mime,kind,bytes,status,thumbnail_id,created_at) VALUES (?,?,?,?,?,?,'uploading',?,?)",
+    id,
+    u.id,
+    key,
+    row.mime,
+    "recovery",
+    row.bytes,
+    row.id,
+    Date.now(),
+  );
+  const validUntil = Date.now() + 5 * 60000;
+  const token = await issueSignedToken({
+    token: process.env.BLOB_READ_WRITE_TOKEN,
+    pathname: key,
+    operations: ["put"],
+    validUntil,
+    maximumSizeInBytes: row.bytes,
+    allowedContentTypes: ["application/octet-stream"],
+  });
+  const { presignedUrl } = await presignUrl(token, {
+    access: "private",
+    operation: "put",
+    pathname: key,
+    validUntil,
+    maximumSizeInBytes: row.bytes,
+    allowedContentTypes: ["application/octet-stream"],
+    allowOverwrite: false,
+    addRandomSuffix: false,
+  });
+  return { id, uploadUrl: presignedUrl };
+}
+export async function finishMediaRecovery(
+  request: Request,
+  user: Member | null,
+  id: string,
+  data: Record<string, any>,
+) {
+  const u = await verifiedStaff(request, user, true);
+  const staged = await one(
+    "SELECT * FROM media WHERE id=? AND owner_id=? AND thumbnail_id=? AND kind='recovery' AND status='uploading'",
+    validId(data.staging_id),
+    u.id,
+    validId(id),
+  );
+  if (!staged) throw new ForumError(404, "Recovery upload not found.");
+  const object = await bucket().get(staged.object_key);
+  if (!object || object.size !== staged.bytes)
+    throw new ForumError(400, "Recovery upload is incomplete.");
+  const bodyRequest = new Request(request.url, {
+    method: "POST",
+    headers: request.headers,
+    body: object.body,
+    duplex: "half",
+  } as RequestInit);
+  return restoreMediaBackup(bodyRequest, user, id);
 }

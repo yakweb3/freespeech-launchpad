@@ -1,6 +1,7 @@
 import Forum from "@/components/forum";
 import { ensureSeed, currentMember } from "@/server/db";
 import { bootstrap, listPosts } from "@/server/queries";
+export const dynamic = "force-dynamic";
 export default async function Home() {
   await ensureSeed();
   const user = await currentMember();

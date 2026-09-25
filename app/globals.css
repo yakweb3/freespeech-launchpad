@@ -1,6 +1,58 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
+.auth-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px;
+}
+.auth-brand {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.auth-brand span {
+  color: #e63d0e;
+}
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  background: white;
+  border: 1px solid #e3e6e9;
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.auth-card h1 {
+  font-size: 25px;
+  font-weight: 700;
+}
+.auth-card > p {
+  color: #626b75;
+}
+.auth-card a {
+  color: #be3009;
+  text-decoration: underline;
+}
+.auth-card input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  vertical-align: middle;
+  display: inline-block;
+  margin-right: 6px;
+}
+.auth-card .auth-consent {
+  display: block;
+  line-height: 1.6;
+  font-size: 13px;
+}
 :root {
   --background: #f5f6f7;
   --foreground: #20252a;

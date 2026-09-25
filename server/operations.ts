@@ -13,6 +13,8 @@ import {
 } from "./db";
 import { verifiedStaff } from "./staff-auth";
 export const BACKUP_TABLES = [
+  "auth_user",
+  "auth_account",
   "users",
   "categories",
   "posts",
@@ -42,13 +44,13 @@ export async function backup(request: Request, user: Member | null) {
   );
   return {
     format: "freespeech-backup-v1",
-    schema: 2,
+    schema: 3,
     created_at: new Date().toISOString(),
     tables: Object.fromEntries(
       BACKUP_TABLES.map((t, i) => [t, results[i].results]),
     ),
     notes:
-      "Database only. Back up R2 objects separately; keep the staff encryption key in a separate secure vault. Sessions, rate limits and outgoing email queue are deliberately excluded.",
+      "Database only, including private login data and password hashes. Encrypt this backup. Back up Blob objects separately; keep the staff encryption key in a separate secure vault. Sessions, reset/verification tokens, rate limits and outgoing email queue are deliberately excluded.",
   };
 }
 async function authorizeMaintenance(request: Request, user: Member | null) {
@@ -71,7 +73,7 @@ export async function maintenance(request: Request, user: Member | null) {
     statement("DELETE FROM rate_limits WHERE expires_at<?", now - 86400000),
     statement("DELETE FROM staff_sessions WHERE expires_at<?", now),
     statement(
-      "UPDATE media SET status='deleted' WHERE status IN ('pending','uploading') AND created_at<?",
+      "UPDATE media SET status='deleted' WHERE status IN ('pending','uploading','finalizing') AND created_at<?",
       now - 86400000,
     ),
     statement(

@@ -1,8 +1,12 @@
 import { health, backup, maintenance } from "@/server/operations";
+import { beginUpload, finishUpload } from "@/server/direct-upload";
+import { claimOwner } from "@/server/owner-setup";
 import {
   listMediaBackups,
   downloadMediaBackup,
   restoreMediaBackup,
+  beginMediaRecovery,
+  finishMediaRecovery,
 } from "@/server/media-backup";
 import { exportAccount } from "@/server/account";
 import {
@@ -116,6 +120,18 @@ export async function POST(request: Request) {
     const user = await currentMember(),
       action = new URL(request.url).pathname.replace("/api/forum/", "");
     if (action === "upload") return response(await uploadMedia(request, user));
+    if (
+      action.startsWith("restore-media/") &&
+      request.headers.get("content-type")?.includes("application/json")
+    )
+      return response(
+        await finishMediaRecovery(
+          request,
+          user,
+          action.slice("restore-media/".length),
+          await jsonBody(request),
+        ),
+      );
     if (action.startsWith("restore-media/"))
       return response(
         await restoreMediaBackup(
@@ -134,6 +150,10 @@ export async function POST(request: Request) {
         "Set-Cookie": await lockStaff(request, user),
       });
     const handlers: Record<string, () => Promise<unknown>> = {
+      "restore-begin": () => beginMediaRecovery(request, user, data),
+      "owner-setup": () => claimOwner(user, data),
+      "upload-begin": () => beginUpload(user, data),
+      "upload-finish": () => finishUpload(user, data),
       maintenance: () => maintenance(request, user),
       "staff-setup": () => setupStaff(user),
       moderate: () => moderate(request, user, data),

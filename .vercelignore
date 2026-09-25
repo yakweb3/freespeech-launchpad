@@ -1,0 +1,10 @@
+.git
+.env*
+.sites-runtime
+.wrangler
+.openai
+dist
+.vinext
+tests
+outputs
+*.tsbuildinfo

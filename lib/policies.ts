@@ -79,7 +79,7 @@ export const POLICIES: Record<
       },
       {
         heading: "Sign-in and cookies",
-        body: "Sign-in is currently provided through ChatGPT. Authentication cookies are managed by that service. The forum stores browser-local drafts and reading positions, a navigation preference, and an additional security cookie after staff verification. No advertising trackers are added by this application.",
+        body: "Sign-in uses a private email address and a hashed password, with a secure session cookie. Email addresses are not shown on public profiles. The forum stores browser-local drafts and reading positions, a navigation preference, and an additional security cookie after staff verification. No advertising trackers are added by this application. Email verification and password-reset delivery are not connected during this early preview.",
       },
       {
         heading: "Visibility and retention",

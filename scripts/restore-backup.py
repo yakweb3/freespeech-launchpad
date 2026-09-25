@@ -4,10 +4,10 @@ Never overwrites a database. Production replacement is an operator-controlled st
 """
 import argparse, json, sqlite3
 from pathlib import Path
-TABLES=['users','categories','posts','comments','votes','bookmarks','preferences','reads','media','notifications','reports','tickets','audit_log','settings','recovery_codes']
+TABLES=['auth_user','auth_account','users','categories','posts','comments','votes','bookmarks','preferences','reads','media','notifications','reports','tickets','audit_log','settings','recovery_codes']
 def restore(backup_path, output_path):
     backup=json.loads(Path(backup_path).read_text(encoding='utf-8-sig'))
-    if backup.get('format')!='freespeech-backup-v1' or backup.get('schema')!=2:
+    if backup.get('format')!='freespeech-backup-v1' or backup.get('schema')!=3:
         raise ValueError('Unsupported backup format/schema; use the matching application release.')
     tables=backup.get('tables',{})
     if set(tables)!=set(TABLES): raise ValueError('Backup table set is incomplete or unexpected.')
@@ -33,7 +33,7 @@ def restore(backup_path, output_path):
             if failures: raise ValueError('Foreign-key validation failed.')
         if connection.execute('PRAGMA integrity_check').fetchone()[0]!='ok': raise ValueError('SQLite integrity check failed.')
         print('Restored and verified '+str(sum(len(rows) for rows in tables.values()))+' records into a new SQLite database.')
-        print('R2 media bytes and the separately stored staff encryption key still need recovery.')
+        print('Blob media bytes and the separately stored staff encryption key still need recovery.')
     finally:
         connection.close()
 if __name__=='__main__':

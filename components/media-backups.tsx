@@ -66,15 +66,39 @@ export default function MediaBackups({
                     }
                     setBusy(true);
                     try {
+                      const begin = await fetch("/api/forum/restore-begin", {
+                        method: "POST",
+                        headers: {
+                          "x-forum-request": "1",
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ id: item.id }),
+                      });
+                      const reservation = (await begin.json()) as {
+                        id: string;
+                        uploadUrl: string;
+                        error?: string;
+                      };
+                      if (!begin.ok)
+                        throw new Error(
+                          reservation.error || "Recovery could not start.",
+                        );
+                      const upload = await fetch(reservation.uploadUrl, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/octet-stream" },
+                        body: file,
+                      });
+                      if (!upload.ok)
+                        throw new Error("Recovery upload failed.");
                       const response = await fetch(
                         "/api/forum/restore-media/" + item.id,
                         {
                           method: "POST",
                           headers: {
                             "x-forum-request": "1",
-                            "Content-Type": "application/octet-stream",
+                            "Content-Type": "application/json",
                           },
-                          body: file,
+                          body: JSON.stringify({ staging_id: reservation.id }),
                         },
                       );
                       const result = (await response.json()) as {

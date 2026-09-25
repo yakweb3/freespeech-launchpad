@@ -1,5 +1,7 @@
 # Launch checklist
 
+**Vercel branch:** the deployment is pending database terms acceptance. See [VERCEL-MIGRATION.md](VERCEL-MIGRATION.md). The original Sites deployment checks below do not establish a successful Vercel deployment.
+
 ## Implemented and locally checked
 
 - [x] Modern Orange desktop feed and phone-width layout; no horizontal overflow at 390px.

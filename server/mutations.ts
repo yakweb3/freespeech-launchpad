@@ -594,6 +594,7 @@ export async function deleteAccount(
       "recovery_codes",
     ].map((t) => statement("DELETE FROM " + t + " WHERE user_id=?", u.id)),
     statement("UPDATE media SET status='deleted' WHERE owner_id=?", u.id),
+    statement("DELETE FROM auth_user WHERE id=?", u.id.replace(/^auth_/, "")),
   ];
   await database().batch(work);
   await purgeMedia("owner_id", u.id);

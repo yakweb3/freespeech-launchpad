@@ -15,6 +15,13 @@
       "when": 1790340404730,
       "tag": "0001_fuzzy_romulus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790369929822,
+      "tag": "0002_talented_vertigo",
+      "breakpoints": true
     }
   ]
 }

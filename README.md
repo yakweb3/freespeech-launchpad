@@ -1,5 +1,7 @@
 # FreeSpeech Forum
 
+**Vercel migration checkout:** use [VERCEL-MIGRATION.md](VERCEL-MIGRATION.md) for the active platform, setup, test and deployment instructions. The Sites-specific notes below describe the original deployment and are retained as historical context.
+
 A working Modern Orange forum built with React/Vinext, a Cloudflare Worker, D1 and R2. The main screen is a discussion feed with categories, voting, text/image/video posts, replies, saved/followed/muted discussions, profiles, notifications and moderation.
 
 ## Start locally

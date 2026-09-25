@@ -3,12 +3,17 @@ import { ForumError, isStaff, validId } from "@/lib/forum-validation";
 import { inspectMedia, readBounded } from "@/lib/media-inspection";
 import { one, run, bucket, settings, limit, requireMember } from "./db";
 import { mediaView } from "./queries";
-export async function uploadMedia(request: Request, user: Member | null) {
+export async function uploadMedia(
+  request: Request,
+  user: Member | null,
+  alreadyReserved = false,
+) {
   const u = requireMember(user),
     s = await settings();
   if (s.uploads_open === "0")
     throw new ForumError(403, "Uploads are temporarily paused.");
-  await limit(u.id, "upload", Number(s.max_daily_uploads) || 10, 86400000);
+  if (!alreadyReserved)
+    await limit(u.id, "upload", Number(s.max_daily_uploads) || 10, 86400000);
   const maxVideo = Math.min(25, Number(s.max_video_mb) || 25) * 1048576,
     maxImage = Math.min(8, Number(s.max_image_mb) || 8) * 1048576;
   if (
@@ -73,7 +78,7 @@ export async function serveMedia(
   user: Member | null,
 ) {
   const m = await one("SELECT * FROM media WHERE id=?", validId(id));
-  if (!m || m.status === "deleted" || m.status === "uploading")
+  if (!m || ["deleted", "uploading", "finalizing"].includes(m.status))
     throw new ForumError(404, "Attachment not found.");
   if (m.status === "pending" && m.owner_id !== user?.id)
     throw new ForumError(404, "Attachment not found.");

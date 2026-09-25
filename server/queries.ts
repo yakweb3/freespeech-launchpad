@@ -161,21 +161,19 @@ export async function getComments(
       )
     : [];
   return {
-    comments: rows
-      .slice(0, 100)
-      .map((c) => ({
-        ...c,
-        body:
-          c.status !== "active"
-            ? ""
-            : mutes.some((m) => m.target === c.user_id)
-              ? "[Content from a muted member]"
-              : c.body,
-        media:
-          c.status === "active" && !mutes.some((m) => m.target === c.user_id)
-            ? media.filter((m) => m.comment_id === c.id).map(mediaView)
-            : [],
-      })),
+    comments: rows.slice(0, 100).map((c) => ({
+      ...c,
+      body:
+        c.status !== "active"
+          ? ""
+          : mutes.some((m) => m.target === c.user_id)
+            ? "[Content from a muted member]"
+            : c.body,
+      media:
+        c.status === "active" && !mutes.some((m) => m.target === c.user_id)
+          ? media.filter((m) => m.comment_id === c.id).map(mediaView)
+          : [],
+    })),
     nextOffset: rows.length > 100 ? offset + 100 : null,
   };
 }
@@ -205,8 +203,8 @@ export async function bootstrap(user: Member | null) {
           user.id,
         )
       : [],
-    signInUrl: "/signin-with-chatgpt?return_to=/",
-    signOutUrl: "/signout-with-chatgpt?return_to=/",
+    signInUrl: "/login",
+    signOutUrl: "/logout",
     emailConfigured: !!(
       settingEnv("EMAIL_API_KEY") &&
       settingEnv("EMAIL_FROM") &&

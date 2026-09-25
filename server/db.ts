@@ -1,20 +1,22 @@
-import { env } from "cloudflare:workers";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
+import { sqlite } from "./sqlite";
+import { blobBucket } from "./blob-storage";
+import { getForumIdentity } from "./identity";
+import { appOrigin } from "./origin";
 import { ForumError, isRestricted, isStaff } from "@/lib/forum-validation";
 import type { Member } from "@/lib/forum-types";
 
-export function database(): D1Database {
-  if (!env.DB)
+export function database() {
+  if (!process.env.TURSO_DATABASE_URL)
     throw new ForumError(
       503,
       "The forum is temporarily unavailable. Please try again shortly.",
     );
-  return env.DB;
+  return sqlite;
 }
-export function bucket(): R2Bucket {
-  if (!env.BUCKET)
+export function bucket() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN)
     throw new ForumError(503, "Uploads are temporarily unavailable.");
-  return env.BUCKET;
+  return blobBucket;
 }
 export function statement(sql: string, ...args: unknown[]) {
   return database()
@@ -41,7 +43,8 @@ export const MEMBER_FIELDS =
 export const PUBLIC_FIELDS =
   "id,username,display_name,bio,avatar_id,role,created_at";
 export function settingEnv(key: string) {
-  return String((env as unknown as Record<string, unknown>)[key] ?? "");
+  if (key === "APP_ORIGIN") return appOrigin();
+  return process.env[key] ?? "";
 }
 export async function settings() {
   return Object.fromEntries(
@@ -53,7 +56,7 @@ export async function settings() {
   );
 }
 export async function currentMember(): Promise<Member | null> {
-  const identity = await getChatGPTUser();
+  const identity = await getForumIdentity();
   if (!identity) return null;
   const id = "auth_" + identity.userId;
   let user = await one<Member>(
@@ -75,7 +78,8 @@ export async function currentMember(): Promise<Member | null> {
       .filter(Boolean);
     const role =
       admins.includes(identity.userId) ||
-      adminEmails.includes(identity.email.toLowerCase())
+      (identity.emailVerified &&
+        adminEmails.includes(identity.email.toLowerCase()))
         ? "admin"
         : "member";
     const suffix = (await sha256(identity.userId)).slice(0, 12);
@@ -229,7 +233,7 @@ async function seed() {
         4,
       ],
     ];
-  const queries: D1PreparedStatement[] = [
+  const queries: ReturnType<typeof statement>[] = [
     statement(
       "INSERT OR IGNORE INTO users (id,username,display_name,bio,role,onboarded,created_at) VALUES ('community_team','freespeech','FreeSpeech team','Community announcements and starter conversations.','moderator',1,?)",
       now - 86400000,

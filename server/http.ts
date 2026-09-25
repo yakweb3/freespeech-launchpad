@@ -1,5 +1,6 @@
 import { readBounded } from "@/lib/media-inspection";
 import { ForumError } from "@/lib/forum-validation";
+import { appOrigin } from "./origin";
 export function response(
   data: unknown,
   status = 200,
@@ -27,7 +28,7 @@ export function guardMutation(request: Request) {
     } catch {
       throw new ForumError(403, "Invalid request origin.");
     }
-    if (parsed !== url.origin)
+    if (parsed !== appOrigin())
       throw new ForumError(403, "Cross-site requests are not allowed.");
   }
   if (request.headers.get("sec-fetch-site") === "cross-site")

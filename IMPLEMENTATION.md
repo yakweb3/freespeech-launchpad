@@ -1,5 +1,7 @@
 # FreeSpeech Forum — scope and verification
 
+**Vercel branch:** this is the original Sites acceptance record. See [VERCEL-MIGRATION.md](VERCEL-MIGRATION.md) for the current migration state and new platform-specific verification. Original test results do not by themselves prove the migrated runtime.
+
 Visual direction: concept 12, Modern Orange. Scope remains all 14 agreed areas, completed as far as possible without user intervention. The initial owner-private deployment succeeded at https://freespeech-orange-forum.allenramirez.chatgpt.site. The release adds the following verified refinements; the final publication result is authoritative in Sites. Public launch still requires the owner/external items below.
 
 | Area | Implemented | Current evidence / remaining work |
