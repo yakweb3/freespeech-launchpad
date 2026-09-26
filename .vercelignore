@@ -5,6 +5,8 @@
 .openai
 dist
 .vinext
+vite.config.ts
+build
 tests
 outputs
 *.tsbuildinfo
