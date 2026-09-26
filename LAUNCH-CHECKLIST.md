@@ -1,6 +1,6 @@
 # Launch checklist
 
-**Vercel branch:** the deployment is pending database terms acceptance. See [VERCEL-MIGRATION.md](VERCEL-MIGRATION.md). The original Sites deployment checks below do not establish a successful Vercel deployment.
+**Vercel branch:** live at https://freespeech-forum.vercel.app, with anonymous access and production health verified. See [VERCEL-MIGRATION.md](VERCEL-MIGRATION.md) for current verification and remaining operational setup. The original Sites checks below are historical.
 
 ## Implemented and locally checked
 
