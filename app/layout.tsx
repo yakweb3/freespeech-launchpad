@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FreeSpeech — Open conversation",
-  description: "A community for ideas, questions, and thoughtful disagreement.",
+  title: "FreeSpeech — Token communities on Solana",
+  description: "Launch a token on pump.fun and bring your holders together in their own community room.",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

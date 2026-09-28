@@ -4,10 +4,10 @@ Never overwrites a database. Production replacement is an operator-controlled st
 """
 import argparse, json, sqlite3
 from pathlib import Path
-TABLES=['auth_user','auth_account','users','categories','posts','comments','votes','bookmarks','preferences','reads','media','notifications','reports','tickets','audit_log','settings','recovery_codes']
+TABLES=['auth_user','auth_account','users','categories','posts','comments','votes','bookmarks','preferences','reads','media','notifications','reports','tickets','audit_log','settings','recovery_codes','wallets','launches','token_rooms']
 def restore(backup_path, output_path):
     backup=json.loads(Path(backup_path).read_text(encoding='utf-8-sig'))
-    if backup.get('format')!='freespeech-backup-v1' or backup.get('schema')!=3:
+    if backup.get('format')!='freespeech-backup-v1' or backup.get('schema')!=4:
         raise ValueError('Unsupported backup format/schema; use the matching application release.')
     tables=backup.get('tables',{})
     if set(tables)!=set(TABLES): raise ValueError('Backup table set is incomplete or unexpected.')

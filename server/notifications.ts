@@ -68,6 +68,9 @@ export async function notifyDiscussion(
   commentId?: string,
   parentUserId?: string,
 ) {
+  // Notifications must not reveal holder-only discussion titles after a balance changes.
+  const protectedPost = await one("SELECT tr.mint FROM posts p JOIN token_rooms tr ON tr.category=p.category WHERE p.id=?", post.id);
+  if (protectedPost) post = { ...post, title: "a holder-only discussion" };
   const href = "/?post=" + post.id + (commentId ? "#comment-" + commentId : "");
   const recipients = new Set<string>();
   if (commentId) {

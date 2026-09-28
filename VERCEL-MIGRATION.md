@@ -1,5 +1,7 @@
 # Vercel deployment
 
+See [LAUNCHPAD.md](LAUNCHPAD.md) for the Solana update, schema-4 backups, wallet access, confirmation recovery and real-wallet testing limitations.
+
 This worktree is the Vercel migration of the Modern Orange forum. The original Sites checkout and private deployment remain separate. This starts a new database; existing Sites accounts and uploaded media have not been copied.
 
 ## Current account resources
@@ -22,7 +24,7 @@ For owner access, register normally, choose a public username, then open `/setup
 
 Uploads over 3 MB bypass Vercel Functions' request-size limit using a short-lived, path-specific private upload URL. Uploaded bytes are inspected on the server before becoming usable attachments. Temporary and final copies count toward the quota. Temporary copies are retained until maintenance (24 hours) so an unexpired upload URL cannot recreate an untracked object. Staff recovery also uploads directly and checks file metadata before restoring a missing object; existing objects are never overwritten.
 
-Database backups use schema version 3 and include private auth users/password hashes, but exclude sessions and verification tokens. Encrypt backups. Run the matching `scripts/restore-backup.py` when recovering them. Older Sites schema-2 backups require a deliberate import procedure, not replay into this database.
+Database backups use schema version 4 and include wallet mappings, launch records and private auth users/password hashes, but exclude sessions and verification tokens. Encrypt backups. Run the matching `scripts/restore-backup.py` when recovering them. Older Sites schema-2 backups require a deliberate import procedure, not replay into this database.
 
 ## Verification
 

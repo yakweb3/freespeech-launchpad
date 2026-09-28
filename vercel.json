@@ -3,5 +3,6 @@
   "framework": "nextjs",
   "buildCommand": "npm run build:vercel",
   "regions": ["iad1"],
-  "functions": { "app/api/**/route.ts": { "maxDuration": 60 } }
+  "functions": { "app/api/**/route.ts": { "maxDuration": 60 } },
+  "crons": [{ "path": "/api/cron/launches", "schedule": "*/5 * * * *" }]
 }

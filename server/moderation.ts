@@ -83,6 +83,8 @@ export async function moderate(
       );
     } else if (type === "post" && action === "move") {
       const category = textValue(data.category, "Category", 1, 40);
+      if (category !== target.category && await one("SELECT 1 FROM token_rooms WHERE category IN (?,?)", category, target.category))
+        throw new ForumError(403, "Holder-only discussions cannot be moved between rooms or into public categories.");
       if (!(await one("SELECT 1 FROM categories WHERE slug=?", category)))
         throw new ForumError(400, "Category not found.");
       details = { from: target.category, to: category };

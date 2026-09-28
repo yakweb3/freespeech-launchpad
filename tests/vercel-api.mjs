@@ -245,7 +245,7 @@ try {
   assert.deepEqual(Buffer.from(await recoveredVideo.arrayBuffer()), video);
   await settings({ posting_open: "1", uploads_open: "1" });
   const databaseBackup = await request("admin", "backup");
-  assert.equal(databaseBackup.schema, 3);
+  assert.equal(databaseBackup.schema, 4);
   assert(databaseBackup.tables.auth_user.length === 3);
   assert(!databaseBackup.tables.auth_session);
   await request("bob", "delete-account", { confirm: "test_bob" });

@@ -1,9 +1,26 @@
 import Forum from "@/components/forum";
-import { ensureSeed, currentMember } from "@/server/db";
+import { ensureSeed, currentMember, one } from "@/server/db";
+import { redirect } from "next/navigation";
 import { bootstrap, listPosts } from "@/server/queries";
+import Launchpad from "@/components/launchpad";
+import { roomDirectory } from "@/server/launchpad";
 export const dynamic = "force-dynamic";
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await ensureSeed();
+  const params = await searchParams;
+  if (typeof params.room === "string") {
+    const room = await one(
+      "SELECT mint FROM token_rooms WHERE category=?",
+      params.room,
+    );
+    if (room) redirect("/rooms/" + room.mint);
+  }
+  if (!params.post && !params.member && !params.page)
+    return <Launchpad initialRooms={await roomDirectory()} />;
   const user = await currentMember();
   const [initial, feed] = await Promise.all([
     bootstrap(user),

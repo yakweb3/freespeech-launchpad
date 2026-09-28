@@ -3,3 +3,4 @@
 // See examples/d1/db/schema.ts for an opt-in example.
 export * from "./forum-schema";
 export * from "./auth-schema";
+export * from "./launchpad-schema";

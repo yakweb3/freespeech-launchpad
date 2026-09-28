@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import WalletControl from "@/components/wallet-control";
 export default function Login() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState(""),
@@ -14,6 +15,8 @@ export default function Login() {
         free<span>speech</span>
       </a>
       <section className="auth-card">
+        <WalletControl onConnected={() => location.assign("/")} />
+        <small>Or continue with email</small>
         <h1>{mode === "signup" ? "Join the conversation" : "Welcome back"}</h1>
         <p>
           Your email stays private. Choose your public username after signing

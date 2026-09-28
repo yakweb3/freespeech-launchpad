@@ -1,6 +1,7 @@
 import { all, one, settings, MEMBER_FIELDS, settingEnv } from "./db";
 import type { Member, Post, Media, Category } from "@/lib/forum-types";
 import { ForumError, positiveInt, isStaff } from "@/lib/forum-validation";
+import { requireRoomAccess } from "./room-access";
 const PUBLIC_POST =
   "p.*,u.username,u.display_name,u.avatar_id,c.name AS category_name,c.color AS category_color,c.icon AS category_icon";
 export function mediaView(m: Record<string, any>): Media {
@@ -51,8 +52,11 @@ export async function listPosts(params: URLSearchParams, user: Member | null) {
     q = params.get("q")?.trim().slice(0, 200),
     filter = params.get("filter");
   if (category) {
+    await requireRoomAccess(category, user);
     conditions.push("p.category=?");
     args.push(category);
+  } else {
+    conditions.push("NOT EXISTS(SELECT 1 FROM token_rooms tr WHERE tr.category=p.category)");
   }
   if (author) {
     conditions.push("u.username=?");
@@ -133,6 +137,7 @@ export async function getPost(id: string, user: Member | null) {
       404,
       "This discussion is unavailable. It may have been removed or deleted.",
     );
+  await requireRoomAccess(row.category, user);
   return (await attachMedia([row]))[0];
 }
 export async function getComments(
@@ -140,6 +145,9 @@ export async function getComments(
   user: Member | null,
   offset = 0,
 ) {
+  const post = await one("SELECT category FROM posts WHERE id=?", postId);
+  if (!post) throw new ForumError(404, "Discussion unavailable.");
+  await requireRoomAccess(post.category, user);
   const rows = await all(
     "SELECT c.*,u.username,u.display_name,u.avatar_id FROM comments c JOIN users u ON u.id=c.user_id WHERE c.post_id=? ORDER BY c.created_at ASC,c.id ASC LIMIT 101 OFFSET ?",
     postId,

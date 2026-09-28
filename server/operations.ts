@@ -30,6 +30,9 @@ export const BACKUP_TABLES = [
   "audit_log",
   "settings",
   "recovery_codes",
+  "wallets",
+  "launches",
+  "token_rooms",
 ];
 export async function health() {
   await one("SELECT 1 AS ok");
@@ -44,7 +47,7 @@ export async function backup(request: Request, user: Member | null) {
   );
   return {
     format: "freespeech-backup-v1",
-    schema: 3,
+    schema: 4,
     created_at: new Date().toISOString(),
     tables: Object.fromEntries(
       BACKUP_TABLES.map((t, i) => [t, results[i].results]),
@@ -72,6 +75,8 @@ export async function maintenance(request: Request, user: Member | null) {
   await database().batch([
     statement("DELETE FROM rate_limits WHERE expires_at<?", now - 86400000),
     statement("DELETE FROM staff_sessions WHERE expires_at<?", now),
+    statement("DELETE FROM wallet_sessions WHERE expires_at<?", now),
+    statement("DELETE FROM wallet_challenges WHERE expires_at<?", now),
     statement(
       "UPDATE media SET status='deleted' WHERE status IN ('pending','uploading','finalizing') AND created_at<?",
       now - 86400000,

@@ -17,6 +17,8 @@ export async function exportAccount(user: Member | null) {
     "notifications",
     "reports",
     "tickets",
+    "wallets",
+    "launches",
   ];
   const records = await Promise.all(
     tables.map(async (table) => [

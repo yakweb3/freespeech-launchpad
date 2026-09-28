@@ -9,6 +9,7 @@ export default function Logout() {
         <p>Sign out of this device?</p>
         <Button
           onClick={async () => {
+            await fetch("/api/launchpad/logout", { method: "POST", headers: { "Content-Type": "application/json", "x-forum-request": "1" }, body: "{}" });
             await authClient.signOut();
             location.assign("/");
           }}

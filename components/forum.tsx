@@ -119,13 +119,15 @@ function ago(time: number) {
 export default function Forum({
   initial,
   initialPosts,
+  initialCategory = "",
 }: {
   initial: Bootstrap;
   initialPosts: Post[];
+  initialCategory?: string;
 }) {
   const [boot, setBoot] = useState(initial),
     [posts, setPosts] = useState(initialPosts),
-    [category, setCategory] = useState(""),
+    [category, setCategory] = useState(initialCategory),
     [filter, setFilter] = useState(""),
     [sort, setSort] = useState("hot"),
     [author, setAuthor] = useState(""),
@@ -193,7 +195,7 @@ export default function Forum({
       setPosts((old) => (offset ? [...old, ...r.posts] : r.posts));
       setNext(r.nextOffset);
     } catch (e) {
-      if (requestId === feedRequest.current) setError((e as Error).message);
+      if (requestId === feedRequest.current) { setError((e as Error).message); setPosts([]); setDetail(null); setComments([]); }
     } finally {
       if (requestId === feedRequest.current) setBusy(false);
     }
@@ -331,6 +333,7 @@ export default function Forum({
     history.replaceState(null, "", "/");
   }
   function navigate(c = "", f = "") {
+    if (c.startsWith("r-")) { location.assign("/?room=" + encodeURIComponent(c)); return; }
     setAuthor("");
     setCategory(c);
     setFilter(f);
@@ -716,6 +719,7 @@ export default function Forum({
           )}
         </form>
         <div className="header-actions">
+          <a className="launch-nav-link" href="/">Token rooms</a>
           <button
             className="icon-button notification-button"
             aria-label="Notifications"

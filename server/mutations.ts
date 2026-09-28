@@ -24,6 +24,7 @@ import {
 import type { Member } from "@/lib/forum-types";
 import { getPost } from "./queries";
 import { notifyDiscussion, notify } from "./notifications";
+import { requireRoomAccess } from "./room-access";
 
 async function postingAllowed() {
   const s = await settings();
@@ -150,6 +151,7 @@ export async function createPost(
     body = textValue(data.body ?? "", "Post", 0, 20000),
     cat = textValue(data.category, "Category", 1, 40);
   await categoryAllowed(cat);
+  await requireRoomAccess(cat, u);
   const link = safeUrl(data.link_url);
   const media = await uploadAttachments(data.media_ids ?? [], u.id);
   if (!body && !media.length && !link)
@@ -261,6 +263,7 @@ export async function createComment(
   await postingAllowed();
   if (post.locked || post.status !== "active")
     throw new ForumError(403, "This discussion is closed to new replies.");
+  await categoryAllowed(post.category);
   const exists = await one("SELECT id,user_id FROM comments WHERE id=?", id);
   if (exists) {
     if (exists.user_id !== u.id)
@@ -330,6 +333,7 @@ export async function editComment(
     c = await one("SELECT * FROM comments WHERE id=?", id);
   if (!c || c.user_id !== u.id || c.status !== "active")
     throw new ForumError(403, "You can only edit your own available comments.");
+  await getPost(c.post_id, u);
   const body = textValue(data.body, "Comment", 1, 10000);
   await limit(u.id, "edit", 12);
   await run(
@@ -592,6 +596,8 @@ export async function deleteAccount(
       "outbox",
       "staff_sessions",
       "recovery_codes",
+      "wallet_sessions",
+      "wallet_challenges",
     ].map((t) => statement("DELETE FROM " + t + " WHERE user_id=?", u.id)),
     statement("UPDATE media SET status='deleted' WHERE owner_id=?", u.id),
     statement("DELETE FROM auth_user WHERE id=?", u.id.replace(/^auth_/, "")),

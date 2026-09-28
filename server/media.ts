@@ -3,6 +3,8 @@ import { ForumError, isStaff, validId } from "@/lib/forum-validation";
 import { inspectMedia, readBounded } from "@/lib/media-inspection";
 import { one, run, bucket, settings, limit, requireMember } from "./db";
 import { mediaView } from "./queries";
+import { requireRoomAccess } from "./room-access";
+import { appOrigin } from "./origin";
 export async function uploadMedia(
   request: Request,
   user: Member | null,
@@ -84,7 +86,7 @@ export async function serveMedia(
     throw new ForumError(404, "Attachment not found.");
   if (m.post_id) {
     const p = await one(
-      "SELECT status,user_id FROM posts WHERE id=?",
+      "SELECT status,user_id,category FROM posts WHERE id=?",
       m.post_id,
     );
     if (
@@ -95,6 +97,7 @@ export async function serveMedia(
         !isStaff(user?.role || ""))
     )
       throw new ForumError(404, "Attachment not found.");
+    await requireRoomAccess(p.category, user);
   }
   if (m.comment_id) {
     const c = await one(
@@ -105,7 +108,7 @@ export async function serveMedia(
       throw new ForumError(404, "Attachment not found.");
   }
   if (m.object_key.startsWith("asset:"))
-    return Response.redirect(new URL(m.object_key.slice(6), request.url), 302);
+    return Response.redirect(new URL(m.object_key.slice(6), appOrigin()), 302);
   const range = request.headers.get("range");
   if (range) {
     const match = range.match(/^bytes=(\d*)-(\d*)$/);
