@@ -9,8 +9,8 @@ This worktree is the Vercel migration of the Modern Orange forum. The original S
 - Vercel project: `freespeech-forum`, team `yakweb3-8425s-projects`, project ID `prj_IBOXuD9sCxmnCNSz9pyWkvNPXSeJ`.
 - Private Blob store: `freespeech-forum-media`, ID `store_qLVt5uGEWvRkBkTR`, connected to production and development.
 - Production authentication secret, staff encryption key and private owner setup code are configured. The ignored `.sites-runtime/vercel-secrets.json` is their local recovery copy; keep it private and move it to an encrypted vault.
-- Turso database `freespeech-forum-db` is connected to production and development, with all three migrations applied. Resource ID: `store_8Zpou07vbfPaWvvG`. Selected plan: Starter ($0/month), region `iad1`. No paid database plan was selected.
-- Production is live at https://freespeech-forum.vercel.app. Deployment `dpl_HSadpDUoEmoEnZfjSagJhf8Tbohq` reached READY from code commit `848fb60`.
+- Turso database `freespeech-forum-db` is connected to production and development, with all four migrations applied. Resource ID: `store_8Zpou07vbfPaWvvG`. Selected plan: Starter ($0/month), region `iad1`. No paid database plan was selected.
+- Production is live at https://freespeech-forum.vercel.app. Current launchpad deployment `dpl_DgKbyyczr6Jd3wshdatGv3DGdRLX` reached READY from code commit `f58bc6e`.
 
 Anonymous production checks on September 25, 2026 (Pacific): homepage and login returned HTTP 200 without cookies or bypass credentials; `/api/forum/health` returned `ok: true`; bootstrap loaded database content; the session endpoint returned null; spoofed identity headers remained anonymous; an unauthenticated mutation was rejected.
 

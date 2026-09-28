@@ -1,5 +1,7 @@
 # Solana launchpad
 
+Live: https://freespeech-forum.vercel.app. Deployed code `f58bc6e`, deployment `dpl_DgKbyyczr6Jd3wshdatGv3DGdRLX`, verified September 27, 2026 (Pacific). Anonymous homepage, mainnet connectivity and forum health passed; anonymous launch/cron requests were denied; authenticated confirmation worker returned successfully. No live token was created during testing.
+
 The homepage is the launchpad. The original public forum remains at `/forum`; existing discussion, profile, policy and support links still work. Existing accounts and posts are retained.
 
 ## Launch and access
@@ -24,7 +26,7 @@ Migration `0003_dusty_valeria_richards` only adds tables/indexes. Backups are sc
 ## Verification and limits
 
 - Next.js production build and TypeScript pass.
-- `node tests/run-launchpad.mjs` uses an isolated database and localhost RPC fixture, real cryptographic signatures and official SDK instructions. Covers invalid/replayed signatures, wallet linking boundaries, transaction tampering, wrong owners, failed/unfinalized launches, cron authentication and automatic confirmation, idempotency, precise balance thresholds, private media/thumbnail/search/notification handling, selling, RPC outages, creator moderation scope, logout and deletion. **These tests send no on-chain transactions.**
+- `node tests/run-launchpad.mjs` uses an isolated database and localhost RPC fixture, real cryptographic signatures and official SDK instructions. Covers invalid/replayed signatures, wallet linking boundaries, transaction tampering, wrong owners, failed/unfinalized launches, cron authentication and automatic confirmation, idempotency, precise balance thresholds, private media/thumbnail/search/notification handling, selling, RPC outages, creator moderation scope, logout, deletion and a schema-4 database restore with foreign-key integrity. **These tests send no on-chain transactions.**
 - `node tests/run-vercel.mjs` passes existing password/session, staff TOTP, posting/notifications, real private Blob image/video upload, range delivery, media recovery and account deletion checks with schema 4.
 - Browser: desktop launchpad and 390px phone view inspected; 320px locked room has no horizontal overflow or private discussion text; missing-wallet instructions work; no console errors in inspected pages.
 - Real mobile wallet approval and a paid mainnet launch have not been performed by the agent. The first live launch needs its creator's wallet and SOL. On mobile, use a compatible wallet's browser if Safari/Chrome cannot detect it. There is no native mobile app, integrated trading UI, guaranteed token value, or automatic import of unrelated external pump.fun launches.
