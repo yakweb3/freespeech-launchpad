@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { createClient } from "@libsql/client";
 import { Keypair, Transaction, SystemProgram } from "@solana/web3.js";
 import nacl from "tweetnacl";
@@ -146,6 +148,7 @@ try {
   unsigned.partialSign(keys.alice);
   const transaction = unsigned.serialize().toString("base64");
   await req("bob", "submit", { id: launch.id, transaction }, 404);
+  await control({ failSendOnce: true });
   const submitted = await req("alice", "submit", {
     id: launch.id,
     transaction,
@@ -323,6 +326,14 @@ try {
   assert.equal((await req("alice", "session")).user, null);
   await req("bob", "delete-account", { confirm: "token_bob" }, 200, "forum");
   assert.equal((await req("bob", "session")).user, null);
+  const tables = ['auth_user','auth_account','users','categories','posts','comments','votes','bookmarks','preferences','reads','media','notifications','reports','tickets','audit_log','settings','recovery_codes','wallets','launches','token_rooms'];
+  const snapshot = { format: 'freespeech-backup-v1', schema: 4, tables: {} };
+  for (const table of tables) snapshot.tables[table] = (await sql('SELECT * FROM ' + table)).rows;
+  const backupFile = process.env.TURSO_DATABASE_URL.slice(5) + '.backup.json';
+  writeFileSync(backupFile, JSON.stringify(snapshot));
+  const restore = spawnSync('python', ['scripts/restore-backup.py', backupFile, backupFile + '.restored.db'], { encoding: 'utf8', windowsHide: true });
+  assert.equal(restore.status, 0, restore.stdout + restore.stderr);
+  console.log('PASS: schema-4 database restore with wallet mappings, launch records, token rooms and foreign-key integrity.');
   console.log(
     "PASS: real Ed25519 wallet signatures, replay/tamper/wallet-link denial; official pump.fun instruction; signed-message transaction binding; failed and unfinalized launches denied; retry-safe room creation; exact holder threshold; search/notification/media/thumbnail privacy; selling and RPC outage fail closed; logout and deletion revoke access. No on-chain transaction sent.",
   );

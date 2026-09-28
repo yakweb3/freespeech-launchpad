@@ -54,7 +54,7 @@ export async function GET(request: Request) {
         12,
       );
       const genesis = await rpc("getGenesisHash");
-      if (genesis !== "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")
+      if (genesis !== "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d")
         throw new ForumError(503, "Solana mainnet is not connected.");
       return response({ ok: true, network: "solana:mainnet" });
     }

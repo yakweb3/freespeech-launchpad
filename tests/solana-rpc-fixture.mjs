@@ -8,6 +8,7 @@ let state = {
   fail: false,
   unavailable: false,
   height: 100,
+  failSendOnce: false,
 };
 const transactions = new Map();
 createServer(async (req, res) => {
@@ -28,7 +29,7 @@ createServer(async (req, res) => {
   let result;
   switch (body.method) {
     case "getGenesisHash":
-      result = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+      result = "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d";
       break;
     case "getLatestBlockhash":
       result = {
@@ -46,6 +47,7 @@ createServer(async (req, res) => {
       result = state.height;
       break;
     case "sendTransaction": {
+      if (state.failSendOnce) { state.failSendOnce = false; res.statusCode = 503; res.end("{}"); return; }
       const tx = Transaction.from(Buffer.from(body.params[0], "base64"));
       if (!tx.verifySignatures()) throw new Error("Invalid fixture tx");
       result = bs58.encode(tx.signature);

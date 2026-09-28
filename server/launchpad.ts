@@ -56,7 +56,7 @@ export async function prepareLaunch(
     u.id,
   );
   if (!image) throw new ForumError(400, "Upload a fresh token image first.");
-  if ((await rpc("getGenesisHash")) !== "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp")
+  if ((await rpc("getGenesisHash")) !== "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d")
     throw new ForumError(503, "Launches require Solana mainnet.");
   const id = crypto.randomUUID(),
     mint = Keypair.generate(),
@@ -176,8 +176,8 @@ export async function submitLaunch(
     signature,
     launch.id,
   );
-  if (saved.meta.changes)
-    await rpc("sendTransaction", [
+  if (saved.meta.changes) {
+    try { await rpc("sendTransaction", [
       tx.serialize().toString("base64"),
       {
         encoding: "base64",
@@ -185,7 +185,11 @@ export async function submitLaunch(
         preflightCommitment: "confirmed",
         maxRetries: 3,
       },
-    ]);
+    ]); } catch {
+      // The persisted signature is the receipt even when delivery is uncertain.
+      // Confirmation and the cron retry the same signed bytes, never a new launch.
+    }
+  }
   return { signature, id: launch.id };
 }
 export async function confirmLaunch(

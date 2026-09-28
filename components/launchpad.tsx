@@ -138,7 +138,7 @@ export default function Launchpad({
         </a>
         <div>
           <a href="/forum">Public forum</a>
-          <WalletControl onConnected={() => void refresh()} />
+          <WalletControl key={session?.address || "disconnected"} onConnected={() => void refresh()} />
         </div>
       </header>
       <main className="launch-main">
