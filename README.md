@@ -1,42 +1,84 @@
-# FreeSpeech Forum
+# FreeSpeech — Solana Token Communities
 
-**Vercel migration checkout:** use [VERCEL-MIGRATION.md](VERCEL-MIGRATION.md) for the active platform, setup, test and deployment instructions. The Sites-specific notes below describe the original deployment and are retained as historical context.
+A Solana launchpad with a forum room for every token launched through the app. Creators launch through pump.fun; holders unlock discussions, pictures, videos and replies.
 
-A working Modern Orange forum built with React/Vinext, a Cloudflare Worker, D1 and R2. The main screen is a discussion feed with categories, voting, text/image/video posts, replies, saved/followed/muted discussions, profiles, notifications and moderation.
+**Live app:** https://freespeech-forum.vercel.app
 
-## Start locally
+## Features
 
-Private site: https://freespeech-orange-forum.allenramirez.chatgpt.site. Access remains owner-only. Sign in, choose a pseudonym, then open Account → Staff tools to enroll your own authenticator.
+- Wallet login with signed, one-use challenges, plus email/password accounts.
+- Wallet-approved pump.fun token creation and automatic rooms after finalized transactions.
+- Public room previews with server-enforced token gates for discussions and attachments.
+- Creator moderation, reporting, appeals and protected platform staff tools.
+- Posts, nested replies, images, short MP4 videos, votes, search and notifications.
+- Retry-safe launch confirmation, including recovery after the browser closes.
 
-Install from the existing lockfile, copy `.env.example` to an ignored `.env`, configure the local administrator and staff encryption key, apply the committed migrations once, then run:
+Built with Next.js, React, TypeScript, Turso/libSQL, private Vercel Blob, Wallet Standard and the official pump.fun SDK.
 
+## Run locally
+
+Use Node.js 22.13 or newer and npm. From the repository root:
+
+```sh
+npm ci
+node -e "require('node:fs').mkdirSync('.sites-runtime', { recursive: true }); require('node:fs').copyFileSync('.env.example', '.env.local')"
 ```
-node scripts/run-framework.mjs dev
+
+Edit `.env.local` before starting:
+
+| Variable | Local setup |
+| --- | --- |
+| `TURSO_DATABASE_URL` | `file:.sites-runtime/dev.db`, or your own Turso database URL |
+| `TURSO_AUTH_TOKEN` | Required for a remote Turso database; leave blank for local SQLite |
+| `APP_ORIGIN` | `http://localhost:5175` |
+| `BETTER_AUTH_SECRET` | A new random secret for this installation |
+| `STAFF_ENCRYPTION_KEY` | A separate random 32-byte key, encoded as Base64 |
+| `OWNER_SETUP_CODE` | A separate private random code for claiming the first administrator |
+| `BLOB_READ_WRITE_TOKEN` | A token for your own private Vercel Blob store; required for media |
+| `SOLANA_RPC_URL` | A trusted Solana mainnet RPC endpoint; the example uses the public endpoint |
+| `CRON_SECRET` | A separate random secret if running scheduled launch confirmation |
+
+Generate each secret separately with `node -e "console.log(require('node:crypto').randomBytes(32).toString('base64'))"`. Never commit the resulting values.
+
+```sh
+node scripts/migrate-vercel.mjs
+npm run dev
 ```
 
-The workspace already has dependencies, local migrations and a configured local-only preview account. The development server is at `http://localhost:5173/`. The local sign-in mock is development-only; deployed identity comes from Sites/ChatGPT.
+Open http://localhost:5175. The public forum is at `/forum`. To become the first administrator, create an account, finish your profile, visit `/setup`, and enter your private setup code. Enroll your own authenticator afterward.
 
-## Verify
+**The interactive launch flow uses real Solana mainnet transactions.** A wallet approval can spend SOL and create an irreversible token. Use the isolated test suite below for testing without sending transactions.
 
+## Verification
+
+```sh
+npm run build
+node tests/run-launchpad.mjs
 ```
-node node_modules/typescript/bin/tsc --noEmit
-node tests/media-validation.mjs
-node scripts/run-framework.mjs build
-node tests/run-isolated.mjs
+
+The launchpad suite creates an isolated SQLite database and a localhost RPC fixture, uses real cryptographic signatures, and sends no on-chain transactions. It checks authorization, transaction tampering, private content access, creator moderation, recovery and schema-4 database restoration. Python 3 is required for the restore check. Ports 5175 and 5176 must be free.
+
+The existing forum/media integration suite requires your own private Blob test store and the MDN CC0 flower video at `.sites-runtime/test-flower.mp4`:
+
+```sh
+node scripts/prepare-test-video.mjs
+node tests/run-vercel.mjs
 ```
 
-The preferred repeatable integration check is `tests/run-isolated.mjs`: it starts the compiled Worker on loopback port 5174 with a new isolated database/bucket and explicit test identities, exercises multi-member workflows and media recovery, then stops its process tree. Do not run it concurrently with a build on Windows. It never uses the hosted database.
+This suite uses disposable real Blob objects and cleans them afterward. It can incur provider usage. Never point integration tests at a live database.
 
-The older integration scripts operate on the local development database and enforce real rate limits. `local-api.mjs` sets up the local test profile. `staff-security.mjs` enrolls that profile in a test authenticator, saved only in ignored local state. `extended-api.mjs` exercises support, exports and staff actions. `final-local-check.mjs` records a one-time browser-created picture/video fixture verification; create matching local fixtures before rerunning it. These are development checks, not production traffic or a scheduled test suite.
+## Deployment and implementation
 
-See [IMPLEMENTATION.md](IMPLEMENTATION.md) for requirement-level evidence and unfinished launch work. See [OPERATIONS.md](OPERATIONS.md) for environment setup, security, backups, recovery, maintenance and deployment. [LAUNCH-CHECKLIST.md](LAUNCH-CHECKLIST.md) separates implementation checks from owner decisions.
+- [Launchpad architecture and test boundaries](LAUNCHPAD.md)
+- [Vercel configuration and operations](VERCEL-MIGRATION.md)
+- [Environment variable template](.env.example)
 
-## Intentional MVP limits
+Deploy with your own Vercel project, database and private Blob store. Apply database migrations before deployment and configure production environment variables. `vercel.json` defines a five-minute recovery cron protected by `CRON_SECRET`.
 
-- Sign-in uses ChatGPT. Independent email/password registration and recovery require a separately selected provider.
-- Pictures are compressed JPEGs; short videos must already be H.264 MP4. No transcoding, livestreaming or long-video pipeline.
-- No DMs, real-time chat, native apps, ads, subscriptions, badges, polls or member-created communities.
-- Terms, privacy, age policy, retention and operator details are initial drafts requiring owner review before opening the community publicly.
-- In-app notifications work independently of email. External email credentials, scheduling, monitoring, independent backups and a custom domain remain deployment/operations choices.
+Some files retain the original Sites/Cloudflare implementation for historical context. The active app uses Next.js, Turso and Vercel Blob. Historical documents are marked accordingly.
 
-Original starter discussion image was generated for this project; it is labelled as a starter image. The MDN CC0 flower video was used only for local playback testing and is not a production seed.
+## Current limits
+
+Real mobile wallet approval and a paid mainnet launch still require live validation by a wallet owner. On mobile, open the app inside a compatible wallet's browser if no wallet is detected. Trading happens on pump.fun; token creation does not include an initial buy. Token metadata is hosted by this app, so its domain and storage must remain available.
+
+Email verification/password recovery, independent scheduled backups, operational monitoring and final operator policy details remain setup work. This repository contains source code, not production credentials, database contents, user uploads or wallet private keys.

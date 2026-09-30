@@ -34,7 +34,7 @@ node node_modules/next/dist/bin/next build
 node tests/run-vercel.mjs
 ```
 
-The test runner creates a fresh local SQLite file and uses disposable objects in this project's Blob store, cleaning them afterward. It passed real sign-up/sign-in/sign-out, spoofed header rejection, owner claims, member permissions, posts/comments/votes/notifications, staff TOTP, direct uploads, a video larger than 4.5 MB, range delivery, authenticated media backup, byte-for-byte large-video recovery, version-3 database backup contents and account deletion. Its CC0 MP4 fixture comes from the original checkout's ignored `.sites-runtime/test-flower.mp4`. Never point these tests at a live database. The sign-in/registration pages were also inspected in the browser at desktop and phone widths.
+The test runner creates a fresh local SQLite file and uses disposable objects in this project's Blob store, cleaning them afterward. It passed real sign-up/sign-in/sign-out, spoofed header rejection, owner claims, member permissions, posts/comments/votes/notifications, staff TOTP, direct uploads, a video larger than 4.5 MB, range delivery, authenticated media backup, byte-for-byte large-video recovery, version-3 database backup contents and account deletion. Download its MDN CC0 MP4 fixture with `node scripts/prepare-test-video.mjs`; it is stored in ignored `.sites-runtime/test-flower.mp4`. Never point these tests at a live database. The sign-in/registration pages were also inspected in the browser at desktop and phone widths.
 
 ## Future deployments
 

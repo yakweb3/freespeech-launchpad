@@ -173,7 +173,7 @@ try {
   );
   assert.equal(backup.status, 200);
   assert.deepEqual(Buffer.from(await backup.arrayBuffer()), bytes);
-  const clip = await readFile("../forum/.sites-runtime/test-flower.mp4");
+  const clip = await readFile(".sites-runtime/test-flower.mp4");
   const padding = Buffer.alloc(5 * 1048576);
   padding.writeUInt32BE(padding.length, 0);
   padding.write("free", 4);
