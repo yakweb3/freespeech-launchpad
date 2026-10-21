@@ -702,8 +702,8 @@ export default function Forum({
         >
           <Search size={19} />
           <input
-            aria-label="Search discussions"
-            placeholder="Search conversations"
+            aria-label="Search communities and conversations"
+            placeholder="Search communities and conversations"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

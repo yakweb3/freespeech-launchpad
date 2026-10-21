@@ -2083,7 +2083,7 @@ progress {
     grid-template-columns: 218px minmax(0, 740px) 300px;
     padding-inline: max(32px, calc((100% - 1376px) / 2));
   }
-  .topbar .search-box { width: 100%; }
+  .topbar .search-box { width: 100%; max-width: none; }
   .topbar .header-actions { width: 300px; margin-left: 0; justify-content: center; gap: 12px; }
 }
 .community-login-button { border-radius: 24px !important; height: 40px; padding-inline: 16px; white-space: nowrap; font-size: 13px; }
