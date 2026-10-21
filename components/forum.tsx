@@ -851,7 +851,20 @@ export default function Forum({
                 </button>
               </div>
             )}
-            <div className="feed-heading">
+            {!search && !selected && !author && !["saved", "following", "unread"].includes(filter) ? (
+              <section className="community-launch-banner" aria-label="Launch or join a community">
+                <img className="community-launch-art" src="/community-launch-banner.svg" alt="" />
+                <div className="community-launch-copy">
+                  <span className="launch-banner-eyebrow">A COIN. A COMMUNITY. YOUR PEOPLE.</span>
+                  <h1>Launch a coin.<br />Build your community.</h1>
+                  <p>Already holding? Verify your tokens and find your people.</p>
+                  <div className="community-launch-actions">
+                    <a className="launch-banner-primary" href="/?create=1">Launch a coin <Plus size={16} /></a>
+                    <a className="launch-banner-secondary" href="/#communities">Verify & join <ChevronRight size={16} /></a>
+                  </div>
+                </div>
+              </section>
+            ) : (<div className="feed-heading">
               <div>
                 <div className="eyebrow">YOUR SPACE TO SPEAK</div>
                 <h1>
@@ -876,6 +889,7 @@ export default function Forum({
                 </p>
               </div>
             </div>
+            )}
             {selected && (
               <div className="category-controls">
                 <Button

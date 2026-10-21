@@ -2119,3 +2119,17 @@ progress {
 .member-summary-stats > div + div { border-left: 1px solid #edf0f2; }
 .member-summary-stats dt { color: #77808a; font-size: 11px; }
 .member-summary-stats dd { margin: 0; font-size: 20px; font-weight: 700; }
+
+.community-launch-banner { position: relative; isolation: isolate; overflow: hidden; border-radius: 14px; margin-bottom: 24px; background: #e74413; color: #fff; min-height: 270px; }
+.community-launch-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
+.community-launch-copy { padding: 30px; max-width: 550px; }
+.launch-banner-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #ffe0be; }
+.community-launch-copy h1 { font-size: clamp(26px, 2.5vw, 34px); line-height: 1.12; letter-spacing: -1px; font-weight: 800; margin: 13px 0 12px; }
+.community-launch-copy p { font-size: 13px; line-height: 1.6; max-width: 330px; color: #fff0e3; }
+.community-launch-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.community-launch-actions a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 24px; padding: 11px 16px; font-size: 12px; font-weight: 700; }
+.community-launch-actions .launch-banner-primary { background: #fff; color: #c5380e; }
+.community-launch-actions .launch-banner-secondary { border: 1px solid #ffffff66; color: #fff; background: #a62a0b33; }
+.community-launch-actions a:hover { box-shadow: 0 3px 12px #7f200b33; }
+.community-launch-actions a:focus-visible { outline: 3px solid #ffdf8b; outline-offset: 3px; }
+@media(max-width: 720px) { .community-launch-copy { padding: 24px 20px; } .community-launch-art { object-position: left; opacity: .65; } .community-launch-copy p { max-width: 280px; } }
