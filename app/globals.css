@@ -2154,3 +2154,6 @@ progress {
 .topic-list-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #c5c9ce transparent; padding-right: 4px; }
 .community-launch-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 24px; padding: 11px 16px; font-size: 12px; font-weight: 700; cursor: pointer; }
 .community-launch-actions button:focus-visible { outline: 3px solid #ffdf8b; outline-offset: 3px; }
+
+/* Keep login links readable on orange button backgrounds. */
+a.community-login-button, .member-summary-card a.full-width { color: #fff; }
