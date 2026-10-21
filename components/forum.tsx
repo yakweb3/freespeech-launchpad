@@ -83,6 +83,7 @@ import type {
   Notification,
 } from "@/lib/forum-types";
 import { POLICIES, RULES } from "@/lib/policies";
+const communityExamples = ["PEPE", "DOGE", "SHIB", "BONK", "WIF", "FLOKI", "POPCAT"];
 const icons: Record<string, typeof Home> = {
   general: MessageSquare,
   society: Globe2,
@@ -174,6 +175,7 @@ export default function Forum({
     [editTitle, setEditTitle] = useState(""),
     [editBody, setEditBody] = useState(""),
     [editLink, setEditLink] = useState("");
+  const [sampleCommunity, setSampleCommunity] = useState<string | null>(null);
   const feedRequest = useRef(0);
   const user = boot.user,
     selected = boot.categories.find((c) => c.slug === category);
@@ -719,7 +721,7 @@ export default function Forum({
           )}
         </form>
         <div className="header-actions">
-          <a className="launch-nav-link" href="/">Token rooms</a>
+
           <button
             className="icon-button notification-button"
             aria-label="Notifications"
@@ -800,42 +802,12 @@ export default function Forum({
                 <Users size={19} />
                 My communities
               </button>
-              <button
-                className={filter === "saved" ? "nav-item active" : "nav-item"}
-                onClick={() => {
-                  if (needUser()) navigate("", "saved");
-                }}
-              >
-                <Bookmark size={19} />
-                Saved posts
-              </button>
-              <button
-                className={filter === "unread" ? "nav-item active" : "nav-item"}
-                onClick={() => {
-                  if (needUser()) navigate("", "unread");
-                }}
-              >
-                <MessageSquare size={19} />
-                Unread discussions
-              </button>
+              <a className="nav-item" href="/#communities"><Flame size={19} />Trending Communities</a>
+              <a className="nav-item" href="/?create=1"><Plus size={19} />Start a Community</a>
               <div className="nav-divider" />
               <h3>EXPLORE COMMUNITIES</h3>
-              {boot.categories.map((c) => {
-                const Icon = icons[c.slug] || MessageSquare;
-                return (
-                  <button
-                    key={c.slug}
-                    className={
-                      category === c.slug ? "nav-item active" : "nav-item"
-                    }
-                    onClick={() => navigate(c.slug)}
-                  >
-                    <Icon size={19} style={{ color: c.color }} />
-                    {c.name}
-                    <ChevronRight size={14} className="nav-arrow" />
-                  </button>
-                );
-              })}
+              <button className={!category && !filter ? "nav-item active" : "nav-item"} onClick={() => navigate()}><img className="community-nav-logo" src="/favicon.svg" alt="" /><span>FreeSpeech</span></button>
+              {communityExamples.map(name => <button key={name} className="nav-item" onClick={() => { setSampleCommunity(name); setMenu(false); }}><img className="community-nav-logo" src={"/communities/" + name.toLowerCase() + ".svg"} alt="" /><span>{name}</span></button>)}
               <div className="nav-divider" />
               <h3>FREESPEECH</h3>
               {[
@@ -1047,6 +1019,10 @@ export default function Forum({
           </aside>
         </div>
       </SidebarProvider>
+      <Dialog open={!!sampleCommunity} onOpenChange={open => { if (!open) setSampleCommunity(null); }}>
+        <DialogContent className="forum-dialog"><DialogHeader><DialogTitle>{sampleCommunity}</DialogTitle><DialogDescription>Sample community preview</DialogDescription></DialogHeader>
+        {sampleCommunity && <div className="sample-community-preview"><img src={"/communities/" + sampleCommunity.toLowerCase() + ".svg"} alt={sampleCommunity + " sample logo"} /><p>This is an example community, not an official or live token room.</p><a href="/?create=1">Start a Community →</a></div>}</DialogContent>
+      </Dialog>
       <Dialog
         open={!!modal}
         onOpenChange={(open) => {

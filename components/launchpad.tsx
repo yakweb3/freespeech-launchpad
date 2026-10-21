@@ -42,6 +42,7 @@ export default function Launchpad({
     setLaunches(l.launches);
   }
   useEffect(() => {
+    if (new URLSearchParams(location.search).get("create") === "1") setShow(true);
     void refresh().catch((e) => setError(e.message));
   }, []);
   async function onboarding(e: React.FormEvent) {

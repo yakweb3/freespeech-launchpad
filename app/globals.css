@@ -2069,3 +2069,9 @@ progress {
     overflow-y: auto;
   }
 }
+
+.community-nav-logo { width:26px; height:26px; flex:0 0 26px; object-fit:contain; border-radius:50%; }
+.sample-community-preview { display:flex; flex-direction:column; align-items:center; gap:20px; text-align:center; padding:20px 0; }
+.sample-community-preview img { width:88px; height:88px; border-radius:50%; }
+.sample-community-preview p { color:#72786c; line-height:1.6; }
+.sample-community-preview a { color:#c54115; font-weight:600; }
