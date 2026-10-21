@@ -1,18 +1,10 @@
-import Forum from "@/components/forum";
-import { ensureSeed, currentMember } from "@/server/db";
-import { bootstrap, listPosts } from "@/server/queries";
-export const dynamic = "force-dynamic";
-export default async function PublicForum() {
-  await ensureSeed();
-  const user = await currentMember();
-  const [initial, feed] = await Promise.all([
-    bootstrap(user),
-    listPosts(new URLSearchParams(), user),
-  ]);
-  return (
-    <Forum
-      initial={{ ...initial, staffVerified: false }}
-      initialPosts={feed.posts}
-    />
-  );
+import { redirect } from "next/navigation";
+export default async function PublicForum({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams;
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) value.forEach(item => query.append(key, item));
+    else if (value !== undefined) query.set(key, value);
+  }
+  redirect(query.size ? "/?" + query.toString() : "/");
 }

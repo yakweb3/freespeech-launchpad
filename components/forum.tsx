@@ -806,8 +806,8 @@ export default function Forum({
                 <Users size={19} />
                 My communities
               </button>
-              <a className="nav-item" href="/#communities"><Flame size={19} />Trending Communities</a>
-              <a className="nav-item" href="/?create=1"><Plus size={19} />Start a Community</a>
+              <a className="nav-item" href="/launchpad#communities"><Flame size={19} />Trending Communities</a>
+              <a className="nav-item" href="/launchpad?create=1"><Plus size={19} />Start a Community</a>
               <div className="nav-divider" />
               <h3>EXPLORE TOPICS</h3>
               <button className={!category && !filter ? "nav-item active" : "nav-item"} onClick={() => navigate()}><img className="community-nav-logo" src="/favicon.svg" alt="" /><span>FreeSpeech</span></button>
@@ -818,7 +818,7 @@ export default function Forum({
                   <div className="topic-communities">
                     {topic === "Memecoins" ? communityExamples.map(name => <button key={name} className="nav-item" onClick={() => { setSampleCommunity(name); setMenu(false); }}><img className="community-nav-logo" src={"/communities/" + name.toLowerCase() + ".svg"} alt="" /><span>{name}</span></button>) : !boot.categories.some(c => c.topic === topic) && <p>No communities yet.</p>}
                     {boot.categories.filter(c => c.topic === topic).map(c => <button key={c.slug} className="nav-item" onClick={() => navigate(c.slug)}><Globe2 size={18} /><span>{c.name}</span></button>)}
-                    <a className="topic-create-link" href="/?create=1"><Plus size={14} />Start a community</a>
+                    <a className="topic-create-link" href="/launchpad?create=1"><Plus size={14} />Start a community</a>
                   </div>
                 </details>
               ))}
@@ -866,7 +866,7 @@ export default function Forum({
                   <h1>Your community.<br />Your way.</h1>
                   <p>Launch a coin for a token-gated community with your friends. Or create a free, public community for everyone.</p>
                   <div className="community-launch-actions">
-                    <a className="launch-banner-primary" href="/?create=1">Launch a coin <Plus size={16} /></a>
+                    <a className="launch-banner-primary" href="/launchpad?create=1">Launch a coin <Plus size={16} /></a>
                     <button className="launch-banner-secondary" onClick={() => { if (needUser()) { setPublicError(""); setPublicOpen(true); } }}>Create a free community <ChevronRight size={16} /></button>
                   </div>
                 </div>
@@ -1058,7 +1058,7 @@ export default function Forum({
       </SidebarProvider>
       <Dialog open={!!sampleCommunity} onOpenChange={open => { if (!open) setSampleCommunity(null); }}>
         <DialogContent className="forum-dialog"><DialogHeader><DialogTitle>{sampleCommunity}</DialogTitle><DialogDescription>Sample community preview</DialogDescription></DialogHeader>
-        {sampleCommunity && <div className="sample-community-preview"><img src={"/communities/" + sampleCommunity.toLowerCase() + ".svg"} alt={sampleCommunity + " sample logo"} /><p>This is an example community, not an official or live token room.</p><a href="/?create=1">Start a Community →</a></div>}</DialogContent>
+        {sampleCommunity && <div className="sample-community-preview"><img src={"/communities/" + sampleCommunity.toLowerCase() + ".svg"} alt={sampleCommunity + " sample logo"} /><p>This is an example community, not an official or live token room.</p><a href="/launchpad?create=1">Start a Community →</a></div>}</DialogContent>
       </Dialog>
       <Dialog
         open={!!modal}

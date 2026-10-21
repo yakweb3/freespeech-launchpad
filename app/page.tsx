@@ -2,8 +2,6 @@ import Forum from "@/components/forum";
 import { ensureSeed, currentMember, one } from "@/server/db";
 import { redirect } from "next/navigation";
 import { bootstrap, listPosts } from "@/server/queries";
-import Launchpad from "@/components/launchpad";
-import { roomDirectory } from "@/server/launchpad";
 export const dynamic = "force-dynamic";
 export default async function Home({
   searchParams,
@@ -19,8 +17,7 @@ export default async function Home({
     );
     if (room) redirect("/rooms/" + room.mint);
   }
-  if (!params.post && !params.member && !params.page)
-    return <Launchpad initialRooms={await roomDirectory()} />;
+  if (params.create === "1") redirect("/launchpad?create=1");
   const user = await currentMember();
   const [initial, feed] = await Promise.all([
     bootstrap(user),
