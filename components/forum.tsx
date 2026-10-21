@@ -802,9 +802,17 @@ export default function Forum({
               <a className="nav-item" href="/#communities"><Flame size={19} />Trending Communities</a>
               <a className="nav-item" href="/?create=1"><Plus size={19} />Start a Community</a>
               <div className="nav-divider" />
-              <h3>EXPLORE COMMUNITIES</h3>
+              <h3>EXPLORE TOPICS</h3>
               <button className={!category && !filter ? "nav-item active" : "nav-item"} onClick={() => navigate()}><img className="community-nav-logo" src="/favicon.svg" alt="" /><span>FreeSpeech</span></button>
-              {communityExamples.map(name => <button key={name} className="nav-item" onClick={() => { setSampleCommunity(name); setMenu(false); }}><img className="community-nav-logo" src={"/communities/" + name.toLowerCase() + ".svg"} alt="" /><span>{name}</span></button>)}
+              {["Memecoins", "Politics", "Gaming", "AI & Tech", "Culture", "Huzz", "Racism"].map((topic) => (
+                <details className="topic-dropdown" key={topic}>
+                  <summary><span>{topic}</span><ChevronRight size={16} /></summary>
+                  <div className="topic-communities">
+                    {topic === "Memecoins" ? communityExamples.map(name => <button key={name} className="nav-item" onClick={() => { setSampleCommunity(name); setMenu(false); }}><img className="community-nav-logo" src={"/communities/" + name.toLowerCase() + ".svg"} alt="" /><span>{name}</span></button>) : <p>No communities yet.</p>}
+                    <a className="topic-create-link" href="/?create=1"><Plus size={14} />Start a community</a>
+                  </div>
+                </details>
+              ))}
               <div className="nav-divider" />
               <h3>FREESPEECH</h3>
               {[
