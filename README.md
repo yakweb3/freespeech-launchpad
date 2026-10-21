@@ -1,8 +1,10 @@
 # FreeSpeech — Solana Token Communities
 
-A Solana launchpad with a forum room for every token launched through the app. Creators launch through pump.fun; holders unlock discussions, pictures, videos and replies.
+A community forum with free public communities and Solana token-gated rooms. Creators can launch through pump.fun or create a free community under a topic.
 
 **Live app:** https://freespeech-forum.vercel.app
+
+**Developer handoff:** [Current implementation, verification, and next steps](DEVELOPER-HANDOFF.md)
 
 ## Features
 
@@ -45,7 +47,7 @@ node scripts/migrate-vercel.mjs
 npm run dev
 ```
 
-Open http://localhost:5175. The public forum is at `/forum`. To become the first administrator, create an account, finish your profile, visit `/setup`, and enter your private setup code. Enroll your own authenticator afterward.
+Open http://localhost:5175. The public forum is the homepage at `/`; `/forum` redirects there. Token launching and the token-room directory are at `/launchpad`. To become the first administrator, create an account, finish your profile, visit `/setup`, and enter your private setup code. Enroll your own authenticator afterward.
 
 **The interactive launch flow uses real Solana mainnet transactions.** A wallet approval can spend SOL and create an irreversible token. Use the isolated test suite below for testing without sending transactions.
 
