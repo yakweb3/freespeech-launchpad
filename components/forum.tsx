@@ -730,9 +730,8 @@ export default function Forum({
             <Bell size={21} />
             {boot.unread > 0 && <span>{boot.unread}</span>}
           </button>
-          <Button onClick={compose} className="create-button">
-            <Plus size={17} />
-            Create post
+          <Button asChild className="community-login-button">
+            <a href={boot.signInUrl}>{user ? "Connect wallet" : "Login / Connect wallet"}</a>
           </Button>
           {user ? (
             <DropdownMenu>
@@ -768,11 +767,7 @@ export default function Forum({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <a className="sign-in" href={boot.signInUrl}>
-              Sign in
-            </a>
-          )}
+          ) : null}
         </div>
       </header>
       <SidebarProvider className="forum-shell">
@@ -963,24 +958,25 @@ export default function Forum({
           </main>
           <aside className="right-sidebar">
             <section className="about-card">
-              <div className="orange-banner">
-                <img src="/favicon.svg" alt="" />
-                <span>
-                  A little more
-                  <br />
-                  room to speak.
-                </span>
+              <div className="freespeech-token-banner">
+                <img src="/favicon.svg" alt="FreeSpeech logo" />
+                <div><strong>$FREESPEECH</strong><span>Your voice. Your community.</span></div>
               </div>
               <div className="sidebar-card-content">
-                <h2>Welcome to FreeSpeech</h2>
+                <h2>Welcome to $FREESPEECH</h2>
                 <p>
                   A community for curious minds and honest conversations. Share
                   your perspective. Discover a new one.
                 </p>
+                <div className="token-community-stats" aria-label="Token statistics not connected">
+                  <div><strong aria-label="Not available">—</strong><span>Market cap</span></div>
+                  <div><strong aria-label="Not available">—</strong><span>Holders</span></div>
+                </div>
+                <p className="token-stats-note">Token data not connected yet</p>
                 <div className="community-stats">
                   <div>
-                    <strong>{boot.stats.members.toLocaleString()}</strong>
-                    <span>Members</span>
+                    <strong>{boot.stats.posts.toLocaleString()}</strong>
+                    <span>Posts</span>
                   </div>
                   <div>
                     <strong>{boot.stats.posts.toLocaleString()}</strong>
