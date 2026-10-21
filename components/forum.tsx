@@ -804,7 +804,7 @@ export default function Forum({
               <div className="nav-divider" />
               <h3>EXPLORE TOPICS</h3>
               <button className={!category && !filter ? "nav-item active" : "nav-item"} onClick={() => navigate()}><img className="community-nav-logo" src="/favicon.svg" alt="" /><span>FreeSpeech</span></button>
-              {["Memecoins", "Politics", "Gaming", "AI & Tech", "Culture", "Huzz", "Racism"].map((topic) => (
+              {["Memecoins", "Crypto", "Politics", "Gaming", "AI & Tech", "Culture", "Huzz", "Racism"].map((topic) => (
                 <details className="topic-dropdown" key={topic}>
                   <summary><span>{topic}</span><ChevronRight size={16} /></summary>
                   <div className="topic-communities">
@@ -813,41 +813,7 @@ export default function Forum({
                   </div>
                 </details>
               ))}
-              <div className="nav-divider" />
-              <h3>FREESPEECH</h3>
-              {[
-                ["about", "About the community"],
-                ["rules", "Community guidelines"],
-                ["moderation", "How moderation works"],
-                ["contact", "Contact & appeals"],
-              ].map(([key, label]) => (
-                <button
-                  className="nav-link"
-                  key={key}
-                  onClick={() => {
-                    if (key === "contact" && !user) {
-                      location.href = boot.signInUrl;
-                      return;
-                    }
-                    setModal(key);
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
             </nav>
-            <div className="nav-footer">
-              <span>
-                More perspectives.
-                <br />
-                Better conversations.
-              </span>
-              <div>
-                <button onClick={() => setModal("privacy")}>Privacy</button>
-                <button onClick={() => setModal("terms")}>Terms</button>
-              </div>
-              <small>© {new Date().getFullYear()} FreeSpeech</small>
-            </div>
           </Sidebar>
           <main id="feed" className="feed">
             {user && isRestricted(user) && (
