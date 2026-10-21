@@ -140,6 +140,9 @@ export default function Forum({
     [error, setError] = useState(""),
     [next, setNext] = useState<number | null>(null),
     [menu, setMenu] = useState(false);
+  const [publicOpen, setPublicOpen] = useState(false);
+  const [publicBusy, setPublicBusy] = useState(false);
+  const [publicError, setPublicError] = useState("");
   const [topicOpen, setTopicOpen] = useState(false);
   const [topicName, setTopicName] = useState("");
   const [topicBusy, setTopicBusy] = useState(false);
@@ -808,18 +811,33 @@ export default function Forum({
               <div className="nav-divider" />
               <h3>EXPLORE TOPICS</h3>
               <button className={!category && !filter ? "nav-item active" : "nav-item"} onClick={() => navigate()}><img className="community-nav-logo" src="/favicon.svg" alt="" /><span>FreeSpeech</span></button>
+              <div className="topic-list-scroll" aria-label="Topics">
               {boot.topics.map((topic) => (
                 <details className="topic-dropdown" key={topic}>
                   <summary><span>{topic}</span><ChevronRight size={16} /></summary>
                   <div className="topic-communities">
-                    {topic === "Memecoins" ? communityExamples.map(name => <button key={name} className="nav-item" onClick={() => { setSampleCommunity(name); setMenu(false); }}><img className="community-nav-logo" src={"/communities/" + name.toLowerCase() + ".svg"} alt="" /><span>{name}</span></button>) : <p>No communities yet.</p>}
+                    {topic === "Memecoins" ? communityExamples.map(name => <button key={name} className="nav-item" onClick={() => { setSampleCommunity(name); setMenu(false); }}><img className="community-nav-logo" src={"/communities/" + name.toLowerCase() + ".svg"} alt="" /><span>{name}</span></button>) : !boot.categories.some(c => c.topic === topic) && <p>No communities yet.</p>}
+                    {boot.categories.filter(c => c.topic === topic).map(c => <button key={c.slug} className="nav-item" onClick={() => navigate(c.slug)}><Globe2 size={18} /><span>{c.name}</span></button>)}
                     <a className="topic-create-link" href="/?create=1"><Plus size={14} />Start a community</a>
                   </div>
                 </details>
               ))}
+              </div>
             </nav>
             <Button className="create-topic-button" variant="outline" onClick={() => { if (needUser()) { setTopicError(""); setTopicOpen(true); } }}><Plus size={16} />Create topic</Button>
           </Sidebar>
+          <Dialog open={publicOpen} onOpenChange={setPublicOpen}>
+            <DialogContent className="forum-dialog">
+              <DialogHeader><DialogTitle>Create a free community</DialogTitle><DialogDescription>Public for everyone to read. Members can join and post without holding a token.</DialogDescription></DialogHeader>
+              <form className="forum-form" onSubmit={async e => { e.preventDefault(); if(publicBusy) return; const data = Object.fromEntries(new FormData(e.currentTarget)); setPublicBusy(true); setPublicError(""); try { const result = await api("public-communities", data); await refreshBoot(); setPublicOpen(false); navigate(result.slug); toast.success("Community created"); } catch(error) { setPublicError((error as Error).message); } finally { setPublicBusy(false); } }}>
+                <label>Community name<input name="name" required minLength={2} maxLength={48} disabled={publicBusy} /></label>
+                <label>Description<textarea name="description" required minLength={10} maxLength={500} disabled={publicBusy} /></label>
+                <label>Topic<select name="topic" required disabled={publicBusy}>{boot.topics.map(t => <option key={t}>{t}</option>)}</select></label>
+                {publicError && <p role="alert">{publicError}</p>}
+                <Button disabled={publicBusy}>{publicBusy ? "Creating…" : "Create free community"}</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
           <Dialog open={topicOpen} onOpenChange={setTopicOpen}>
             <DialogContent className="forum-dialog">
               <DialogHeader><DialogTitle>Create topic</DialogTitle><DialogDescription>Add a topic for the community to explore.</DialogDescription></DialogHeader>
@@ -845,11 +863,11 @@ export default function Forum({
                 <img className="community-launch-art" src="/community-launch-banner.svg" alt="" />
                 <div className="community-launch-copy">
                   <span className="launch-banner-eyebrow">A COIN. A COMMUNITY. YOUR PEOPLE.</span>
-                  <h1>Launch a coin.<br />Build your community.</h1>
-                  <p>Already holding? Verify your tokens and find your people.</p>
+                  <h1>Your community.<br />Your way.</h1>
+                  <p>Launch a coin for a token-gated community with your friends. Or create a free, public community for everyone.</p>
                   <div className="community-launch-actions">
                     <a className="launch-banner-primary" href="/?create=1">Launch a coin <Plus size={16} /></a>
-                    <a className="launch-banner-secondary" href="/#communities">Verify & join <ChevronRight size={16} /></a>
+                    <button className="launch-banner-secondary" onClick={() => { if (needUser()) { setPublicError(""); setPublicOpen(true); } }}>Create a free community <ChevronRight size={16} /></button>
                   </div>
                 </div>
               </section>

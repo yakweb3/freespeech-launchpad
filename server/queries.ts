@@ -188,7 +188,7 @@ export async function getComments(
 }
 export async function bootstrap(user: Member | null) {
   const categories = await all<Category>(
-    "SELECT c.*,(SELECT COUNT(*) FROM posts WHERE category=c.slug AND status='active') AS post_count,EXISTS(SELECT 1 FROM preferences WHERE user_id=? AND kind='join_category' AND target=c.slug) AS joined FROM categories c ORDER BY position,name",
+    "SELECT c.*,(SELECT topic FROM public_communities pc WHERE pc.category=c.slug) AS topic,(SELECT COUNT(*) FROM posts WHERE category=c.slug AND status='active') AS post_count,EXISTS(SELECT 1 FROM preferences WHERE user_id=? AND kind='join_category' AND target=c.slug) AS joined FROM categories c ORDER BY position,name",
     user?.id ?? "",
   );
   const stats = await one<{ members: number; posts: number; comments: number }>(
@@ -201,8 +201,8 @@ export async function bootstrap(user: Member | null) {
       )
     : null;
   const profileStats = user ? await one<{ upvotes: number; created: number; joined: number }>(
-    "SELECT (SELECT COUNT(*) FROM votes v JOIN posts p ON p.id=v.post_id WHERE p.user_id=? AND p.status='active' AND v.value=1 AND v.user_id!=?) AS upvotes, (SELECT COUNT(*) FROM token_rooms WHERE creator_id=?) AS created, (SELECT COUNT(*) FROM preferences f JOIN categories c ON c.slug=f.target WHERE f.user_id=? AND f.kind='join_category') AS joined",
-    user.id, user.id, user.id, user.id,
+    "SELECT (SELECT COUNT(*) FROM votes v JOIN posts p ON p.id=v.post_id WHERE p.user_id=? AND p.status='active' AND v.value=1 AND v.user_id!=?) AS upvotes, ((SELECT COUNT(*) FROM token_rooms WHERE creator_id=?) + (SELECT COUNT(*) FROM public_communities WHERE creator_id=?)) AS created, (SELECT COUNT(*) FROM preferences f JOIN categories c ON c.slug=f.target WHERE f.user_id=? AND f.kind='join_category') AS joined",
+    user.id, user.id, user.id, user.id, user.id,
   ) : null;
   return {
     topics: [...DEFAULT_TOPICS, ...(await all<{name: string}>("SELECT name FROM forum_topics ORDER BY created_at,name")).map(t => t.name)],

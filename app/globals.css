@@ -2148,3 +2148,9 @@ progress {
 
 .create-topic-button { margin-top: auto; flex-shrink: 0; width: 100%; border-radius: 24px; gap: 8px; }
 .left-nav > nav { padding-bottom: 16px; }
+
+.left-nav > nav { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+.left-nav > nav > :not(.topic-list-scroll) { flex-shrink: 0; }
+.topic-list-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #c5c9ce transparent; padding-right: 4px; }
+.community-launch-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 24px; padding: 11px 16px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.community-launch-actions button:focus-visible { outline: 3px solid #ffdf8b; outline-offset: 3px; }

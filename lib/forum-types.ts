@@ -17,6 +17,7 @@ export type Member = {
   totp_enabled: number;
 };
 export type Category = {
+  topic?: string | null;
   slug: string;
   name: string;
   description: string;

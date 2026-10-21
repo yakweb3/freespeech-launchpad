@@ -618,3 +618,19 @@ export async function createTopic(user: Member | null, data: Record<string, unkn
   await run("INSERT INTO forum_topics (id,name,creator_id,created_at) VALUES (?,?,?,?)", crypto.randomUUID(), name, u.id, Date.now());
   return { name };
 }
+
+export async function createPublicCommunity(user: Member | null, data: Record<string, unknown>) {
+  const u = requireMember(user);
+  const name = textValue(data.name, "Name", 2, 48);
+  const description = textValue(data.description, "Description", 10, 500);
+  const topic = textValue(data.topic, "Topic", 2, 32);
+  if (!DEFAULT_TOPICS.includes(topic) && !(await one("SELECT id FROM forum_topics WHERE name=?", topic))) throw new ForumError(400, "Choose an existing topic.");
+  await limit(u.id, "create-public-community", 3, 86400000);
+  const slug = "c-" + crypto.randomUUID().replaceAll("-", "").slice(0, 24);
+  await database().batch([
+    statement("INSERT INTO categories (slug,name,description,color,icon,position,locked) VALUES (?,?,?,'#e74413','community',100,0)", slug,name,description),
+    statement("INSERT INTO public_communities (category,creator_id,topic,created_at) VALUES (?,?,?,?)",slug,u.id,topic,Date.now()),
+    statement("INSERT INTO preferences (user_id,kind,target) VALUES (?,'join_category',?)",u.id,slug),
+  ]);
+  return { slug };
+}
