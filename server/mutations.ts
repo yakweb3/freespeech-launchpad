@@ -1,3 +1,4 @@
+import { DEFAULT_TOPICS } from "@/lib/topics";
 import {
   all,
   one,
@@ -605,4 +606,15 @@ export async function deleteAccount(
   await database().batch(work);
   await purgeMedia("owner_id", u.id);
   return { ok: true };
+}
+
+export async function createTopic(user: Member | null, data: Record<string, unknown>) {
+  const u = requireMember(user);
+  if (typeof data.name !== "string") throw new ForumError(400, "Enter a topic name.");
+  const name = data.name.trim().replace(/\s+/g, " ");
+  if (name.length < 2 || name.length > 32 || !/^[\p{L}\p{N} &+'’.-]+$/u.test(name)) throw new ForumError(400, "Use 2–32 characters: letters, numbers, spaces, or simple punctuation.");
+  if (DEFAULT_TOPICS.some(t => t.toLowerCase() === name.toLowerCase())) throw new ForumError(409, "That topic already exists.");
+  await limit(u.id, "create-topic", 3, 86400000);
+  await run("INSERT INTO forum_topics (id,name,creator_id,created_at) VALUES (?,?,?,?)", crypto.randomUUID(), name, u.id, Date.now());
+  return { name };
 }

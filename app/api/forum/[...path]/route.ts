@@ -159,6 +159,7 @@ export async function POST(request: Request) {
       moderate: () => moderate(request, user, data),
       "delete-upload": () => deleteUpload(user, data.id),
       thumbnail: () => linkThumbnail(user, data.video_id, data.thumbnail_id),
+      topics: () => mutations.createTopic(user, data),
       profile: () => mutations.updateProfile(user, data),
       posts: () => mutations.createPost(user, data),
       comments: () => mutations.createComment(user, data),

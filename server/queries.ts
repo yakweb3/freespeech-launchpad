@@ -1,3 +1,4 @@
+import { DEFAULT_TOPICS } from "@/lib/topics";
 import { all, one, settings, MEMBER_FIELDS, settingEnv } from "./db";
 import type { Member, Post, Media, Category } from "@/lib/forum-types";
 import { ForumError, positiveInt, isStaff } from "@/lib/forum-validation";
@@ -204,6 +205,7 @@ export async function bootstrap(user: Member | null) {
     user.id, user.id, user.id, user.id,
   ) : null;
   return {
+    topics: [...DEFAULT_TOPICS, ...(await all<{name: string}>("SELECT name FROM forum_topics ORDER BY created_at,name")).map(t => t.name)],
     profileStats,
     user,
     categories,

@@ -140,6 +140,10 @@ export default function Forum({
     [error, setError] = useState(""),
     [next, setNext] = useState<number | null>(null),
     [menu, setMenu] = useState(false);
+  const [topicOpen, setTopicOpen] = useState(false);
+  const [topicName, setTopicName] = useState("");
+  const [topicBusy, setTopicBusy] = useState(false);
+  const [topicError, setTopicError] = useState("");
   const [modal, setModal] = useState(""),
     [detail, setDetail] = useState<Post | null>(null),
     [comments, setComments] = useState<Comment[]>([]),
@@ -804,7 +808,7 @@ export default function Forum({
               <div className="nav-divider" />
               <h3>EXPLORE TOPICS</h3>
               <button className={!category && !filter ? "nav-item active" : "nav-item"} onClick={() => navigate()}><img className="community-nav-logo" src="/favicon.svg" alt="" /><span>FreeSpeech</span></button>
-              {["Memecoins", "Crypto", "Politics", "Gaming", "AI & Tech", "Culture", "Huzz", "Racism"].map((topic) => (
+              {boot.topics.map((topic) => (
                 <details className="topic-dropdown" key={topic}>
                   <summary><span>{topic}</span><ChevronRight size={16} /></summary>
                   <div className="topic-communities">
@@ -814,7 +818,18 @@ export default function Forum({
                 </details>
               ))}
             </nav>
+            <Button className="create-topic-button" variant="outline" onClick={() => { if (needUser()) { setTopicError(""); setTopicOpen(true); } }}><Plus size={16} />Create topic</Button>
           </Sidebar>
+          <Dialog open={topicOpen} onOpenChange={setTopicOpen}>
+            <DialogContent className="forum-dialog">
+              <DialogHeader><DialogTitle>Create topic</DialogTitle><DialogDescription>Add a topic for the community to explore.</DialogDescription></DialogHeader>
+              <form className="forum-form" onSubmit={async e => { e.preventDefault(); if (topicBusy) return; setTopicBusy(true); setTopicError(""); try { await api("topics", { name: topicName }); await refreshBoot(); setTopicName(""); setTopicOpen(false); toast.success("Topic created"); } catch (error) { setTopicError((error as Error).message); } finally { setTopicBusy(false); } }}>
+                <label>Topic name<input autoFocus required minLength={2} maxLength={32} value={topicName} onChange={e => setTopicName(e.target.value)} placeholder="e.g. Music" disabled={topicBusy} /></label>
+                {topicError && <p role="alert">{topicError}</p>}
+                <Button type="submit" disabled={topicBusy || topicName.trim().length < 2}>{topicBusy ? "Creating…" : "Create topic"}</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
           <main id="feed" className="feed">
             {user && isRestricted(user) && (
               <div className="restriction-banner">

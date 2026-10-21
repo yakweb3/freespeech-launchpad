@@ -2145,3 +2145,6 @@ progress {
 .topic-communities p { font-size: 11px; color: #77808a; padding: 8px; margin: 0; }
 .topic-create-link { display: flex; align-items: center; gap: 5px; padding: 8px; font-size: 11px; color: #c53b10; }
 .left-nav > nav { min-height: 0; overflow-y: auto; }
+
+.create-topic-button { margin-top: auto; flex-shrink: 0; width: 100%; border-radius: 24px; gap: 8px; }
+.left-nav > nav { padding-bottom: 16px; }

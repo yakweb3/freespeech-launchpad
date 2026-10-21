@@ -93,6 +93,7 @@ export type Notification = {
 };
 export type Preference = { kind: string; target: string };
 export type Bootstrap = {
+  topics: string[];
   profileStats: { upvotes: number; created: number; joined: number } | null;
   user: Member | null;
   categories: Category[];
