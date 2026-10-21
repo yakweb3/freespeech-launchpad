@@ -19,6 +19,8 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import {
+  Crown,
+  UserRound,
   ArrowUp,
   ArrowDown,
   MessageSquare,
@@ -957,6 +959,24 @@ export default function Forum({
             )}
           </main>
           <aside className="right-sidebar">
+            <section className="member-summary-card" aria-label="Your profile">
+              <div className="member-summary-identity">
+                <div className="member-summary-avatar">
+                  {user?.avatar_id ? <img src={"/api/forum/media/" + user.avatar_id} alt={`${user.display_name} profile picture`} /> : user ? <span>{user.display_name.slice(0, 1).toUpperCase()}</span> : <UserRound size={28} />}
+                </div>
+                <div className="member-summary-name">
+                  <h2>{user?.display_name || "Your profile"}</h2>
+                  {user ? <p>@{user.username}</p> : <p>Your place in the community</p>}
+                  {!!boot.profileStats?.created && <span className="founder-badge"><Crown size={12} /> Community founder</span>}
+                </div>
+              </div>
+              <dl className="member-summary-stats">
+                <div title="Upvotes received on your active posts, excluding your own votes"><dt>Upvotes</dt><dd>{boot.profileStats?.upvotes.toLocaleString() ?? "—"}</dd></div>
+                <div title="Communities you created"><dt>Created</dt><dd>{boot.profileStats?.created.toLocaleString() ?? "—"}</dd></div>
+                <div title="Communities you joined"><dt>Joined</dt><dd>{boot.profileStats?.joined.toLocaleString() ?? "—"}</dd></div>
+              </dl>
+              {user ? <Button variant="outline" className="full-width" onClick={() => setModal("profile")}>View your profile</Button> : <Button asChild className="full-width"><a href={boot.signInUrl}>Login / Connect wallet</a></Button>}
+            </section>
             <section className="about-card">
               <div className="freespeech-token-banner">
                 <img src="/favicon.svg" alt="FreeSpeech logo" />

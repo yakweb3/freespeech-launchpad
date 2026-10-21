@@ -199,7 +199,12 @@ export async function bootstrap(user: Member | null) {
         user.id,
       )
     : null;
+  const profileStats = user ? await one<{ upvotes: number; created: number; joined: number }>(
+    "SELECT (SELECT COUNT(*) FROM votes v JOIN posts p ON p.id=v.post_id WHERE p.user_id=? AND p.status='active' AND v.value=1 AND v.user_id!=?) AS upvotes, (SELECT COUNT(*) FROM token_rooms WHERE creator_id=?) AS created, (SELECT COUNT(*) FROM preferences f JOIN categories c ON c.slug=f.target WHERE f.user_id=? AND f.kind='join_category') AS joined",
+    user.id, user.id, user.id, user.id,
+  ) : null;
   return {
+    profileStats,
     user,
     categories,
     stats: stats ?? { members: 0, posts: 0, comments: 0 },

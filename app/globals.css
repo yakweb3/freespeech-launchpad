@@ -2105,3 +2105,17 @@ progress {
 @media (max-width: 400px) {
   .topbar .brand > a > span { display: none; }
 }
+
+.member-summary-card { background: #fff; border: 1px solid var(--border); border-radius: 9px; padding: 20px; margin-bottom: 20px; }
+.member-summary-identity { display: flex; align-items: center; gap: 12px; }
+.member-summary-avatar { width: 52px; height: 52px; flex-shrink: 0; border-radius: 50%; background: #fff0e8; color: #d74010; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; overflow: hidden; }
+.member-summary-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.member-summary-name { min-width: 0; }
+.member-summary-name h2 { font-size: 15px; font-weight: 700; margin: 0; overflow-wrap: anywhere; }
+.member-summary-name p { font-size: 11px; color: #77808a; margin: 4px 0 0; overflow-wrap: anywhere; }
+.founder-badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 20px; padding: 4px 7px; margin-top: 7px; background: #fff3d5; color: #91600b; font-size: 10px; font-weight: 600; }
+.member-summary-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 20px 0; padding-top: 16px; border-top: 1px solid #edf0f2; text-align: center; }
+.member-summary-stats > div { display: flex; flex-direction: column-reverse; gap: 4px; }
+.member-summary-stats > div + div { border-left: 1px solid #edf0f2; }
+.member-summary-stats dt { color: #77808a; font-size: 11px; }
+.member-summary-stats dd { margin: 0; font-size: 20px; font-weight: 700; }
